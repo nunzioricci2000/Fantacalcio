@@ -1,0 +1,88 @@
+@startuml
+title Modello Base di Dati
+
+enum Ruolo {
+  PORTIERE
+  DIFENSORE
+  CENTROCAMPISTA
+  ATTACCANTE
+}
+
+enum Piede {
+  SINISTO
+  DESTRO
+  AMBIDESTRO
+}
+
+enum Skill {
+  COLPO_DI_TESTA
+  TACKLE
+  ROVESCIATA
+  DRIBBLING
+  PASSAGGIO
+  TIRO
+  CONTROLLO_PALLA
+  FINTA
+  CROSS
+  VELOCITA
+  AGILITA
+  RESISTENZA
+  VISIONE_DI_GIOCO
+  POSIZIONAMENTO
+  LEADERSHIP
+}
+
+class Calciatore {
+  - id: int
+  - nome: String
+  - cognome: String
+  - dataDiNascita: Date
+  - dataDiRitiro: Date?
+  - piede: Piede
+  - ruoli: List<Ruolo>
+  - skills: List<Skill>
+}
+
+class Squadra {
+  - nome: String
+  - nazionalità: String
+}
+
+class Militanza {
+  - partiteGiocate: int
+  - goalSegnati: int
+}
+
+class MilitanzaPortiere {
+  - goalSubiti: int
+}
+
+class Periodo {
+  - dataInizio: Date
+  - dataFine: Date
+}
+
+abstract class Trofeo {
+  - nome: String
+  - data: Date
+}
+
+class TrofeoIndividuale {
+}
+
+class TrofeoDiSquadra {
+}
+
+' Generalizzazioni
+Militanza <|-l- MilitanzaPortiere
+Trofeo <|-l- TrofeoIndividuale
+Trofeo <|-r- TrofeoDiSquadra
+
+Calciatore "0..*" -l- "0..*" Squadra: - squadra
+(Calciatore, Squadra) .. Militanza
+Militanza *- Periodo: - periodi
+Trofeo "0..*" <- "0..*" Calciatore: - trofei
+TrofeoDiSquadra "0..*" -d-> "1" Squadra: - squadra
+TrofeoIndividuale "0..*" -d-> "1" Calciatore: - calciatore
+
+@enduml
