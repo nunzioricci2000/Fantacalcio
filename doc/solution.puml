@@ -1,0 +1,231 @@
+@startuml
+title Modello del Dominio della Soluzione
+
+package DAO {
+    interface CalciatoreDAO {
+        ---
+        + readCalciatori(filter: Filter): List<Calciatore>
+        + read(id: int): Calciatore
+        + update(calciatore: Calciatore): Calciatore
+        + delete(calciatore: Calciatore): void
+        + create(calciatore: Calciatore): Calciatore
+    }
+
+    interface SkillsDAO {
+        ---
+        + readSkillsDi(idCalciatore: int): List<Skill>
+        + delete(skill: Skill, calciatore: Calciatore): void
+        + create(skill: Skill, calciatore: Calciatore): void
+    }
+
+    interface RuoliDAO {
+        ---
+        + readRuoliDi(idCalciatore: int): List<Ruolo>
+        + delete(ruolo: Ruolo, calciatore: Calciatore): void
+        + create(ruolo: Ruolo, calciatore: Calciatore): void
+    }
+
+    interface SquadraDAO {
+        ---
+        + readSquadre(): List<Squadre>
+        + update(old: Squadra, new: Squadra): Squadra
+        + delete(squadra: Squadra): void
+        + create(squadra: Squadra): Squadra
+    }
+
+    interface MilitanzaDAO {
+        ---
+        + readMilitanzeDi(calciatore: Calciatore): List<Militanza>
+        + update(militanza: Militanza): Militanza
+        + delete(militanza: Militanza): void
+        + create(militanza: Militanza): Militanza
+    }
+
+    interface PeriodoDAO {
+        + readPeriodiDi(militanza: Militanza): List<Militanza>
+        + update(periodo: Periodo): Periodo
+        + delete(periodo: Periodo): void
+        + create(periodo: Periodo): Periodo
+    }
+
+    interface TrofeoDAO {
+        ---
+        + readTrofeiDi(calciatore: Calciatore): List<TrofeoIndividuale>
+        + readTrofeiDi(squadra: Squadra): List<TrofeoDiSquadra>
+        + delete(trofeo: Trofeo): void
+        + create(trofeo: Trofeo): Trofeo
+    }
+}
+
+package PostgreImplDAO {
+    class CalciatorePostgresImplDAO implements DAO.CalciatoreDAO
+    class SkillsPostgresImplDAO implements DAO.SkillsDAO
+    class RuoliPostgresImplDAO implements DAO.RuoliDAO
+    class SquadraPostgresImplDAO implements DAO.SquadraDAO
+    class MilitanzaPostgresImplDAO implements DAO.MilitanzaDAO
+    class PeriodoPostgresImplDAO implements DAO.PeriodoDAO
+    class TrofeoPostgresImplDAO implements DAO.TrofeoDAO
+}
+
+package Model {
+    enum Ruolo {
+        PORTIERE
+        DIFENSORE
+        CENTROCAMPISTA
+        ATTACCANTE
+    }
+
+    enum Piede {
+        SINISTO
+        DESTRO
+        AMBIDESTRO
+    }
+
+    enum Skill {
+        COLPO_DI_TESTA
+        TACKLE
+        ROVESCIATA
+        DRIBBLING
+        PASSAGGIO
+        TIRO
+        CONTROLLO_PALLA
+        FINTA
+        CROSS
+        VELOCITA
+        AGILITA
+        RESISTENZA
+        VISIONE_DI_GIOCO
+        POSIZIONAMENTO
+        LEADERSHIP
+    }
+
+    class Calciatore {
+        - id: int
+        - nome: String
+        - cognome: String
+        - dataDiNascita: Date
+        - dataDiRitiro: Date?
+        - piede: Piede
+        - ruoli: ArrayList<Ruolo>
+        - skills: ArrayList<Skill>
+        ---
+        + getNome(): String
+        + getCognome(): String
+        + getDataDiNascita(): Date
+        + getDataDiRitiro(): Optional<Date>
+        + getCarriera(): ArrayList<Militanza>
+        + getTrofei(): ArrayList<Trofeo>
+        + getEtà(): int
+        + getSquadraCorrente(): Optional<Squadra>
+        + getSkills(): ArrayList<Skill>
+        + getPiede(): Piede
+        + getRuoli(): ArrayList<Ruolo>
+        + getPartiteGiocate():
+    }
+
+    class Squadra {
+        - nome: String
+        - nazionalità: String
+        ---
+        + getNome(): String
+        + getNazionalità(): String
+    }
+
+    class Militanza {
+        - partiteGiocate: int
+        - goalSegnati: int
+        ---
+        + getPartiteGiocate(): int
+        + getGoalSegnati(): int
+        + getPeriodi(): ArrayList<Periodo>
+    }
+
+    class MilitanzaPortiere {
+        - goalSubiti: int
+        ---
+        + getGaolSubiti(): int
+    }
+
+    class Periodo {
+        - dataInizio: Date
+        - dataFine: Date
+        ---
+        + getDataInizio(): Date
+        + getDataFine(): Date
+    }
+
+    abstract class Trofeo {
+        - nome: String
+        - data: Date
+        ---
+        + getNome(): String
+        + getData(): String
+    }
+
+    class TrofeoIndividuale {
+        ---
+        + getCalciatore(): Calciatore
+    }
+
+    class TrofeoDiSquadra {
+        ---
+        + getSquadra(): Squadra
+    }
+
+    interface Utente {
+        ---
+        + accediComeAmministratore(password: String): Utente
+        + vediElencoCalciatori(): List<Calciatore>
+        + vediCaratteristicheCalciatore(calciatore: Calciatore): Calciatore
+        + filtraPer(filtro: Filtro): List<Calciatore>
+    }
+
+    interface Amministratore {
+        ---
+        + inserisciCalciatore(nome: String, cognome: String, dataDiNascita: Date, dataDiRitiro: Date?, skills: List<Skill>, ruoli: List<Ruolo>, piede: Piede, carriera: List<Militanza>): Calciatore
+        + modificaCalciatore(calciatore: Calciatore, nome: String?, cognome: String?, dataDiNascita: Date?, dataDiRitiro: Date?, skills: List<Skill>?, ruoli: List<Ruolo>?, piede: Piede?, carriera: List<Militanza>?): Calciatore
+        + eliminaCalciatore(calciatore: Calciatore): bool
+        + logout(): Utente
+    }
+
+    class Filtro {
+        - nome: String
+        - ruolo: Ruolo
+        - piede: Piede
+        - minimoGoalSegnati: Integer
+        - massimoGoalSegnati: Integer
+        - minimoGoalSubiti: Integer
+        - massimoGoalSubiti: Integer
+        - minimoEtà: Integer
+        - massimoEtà: Integer
+        - squadra: Squadra
+        ---
+        + getNome(): String
+        + getRuolo(): Ruolo
+        + getPiede(): Piede
+        + getMinimoGoalSegnati(): Integer
+        + getMassimoGoalSegnati(): Integer
+        + getMinimoGoalSubiti(): Integer
+        + getMassimoGoalSubiti(): Integer
+        + getMinimoEtà(): Integer
+        + getMassimoEtà(): Integer
+        + getSquadra(): Squadra
+    }
+
+    ' Generalizzazioni
+    Militanza <|- MilitanzaPortiere
+    Trofeo <|-l- TrofeoIndividuale
+    Trofeo <|-r- TrofeoDiSquadra
+    Utente <|-d- Amministratore
+
+    Calciatore "0..*" -r- "0..*" Squadra: - squadra
+    (Calciatore, Squadra) .. Militanza
+    Militanza *-l- Periodo: - periodi
+    Trofeo "0..*" <-d- "0..*" Calciatore: - trofei
+    TrofeoDiSquadra "0..*" -d-> "1" Squadra: - squadra
+    TrofeoIndividuale "0..*" -d-> "1" Calciatore: - calciatore
+
+    MilitanzaPortiere -[hidden]- Utente
+}
+
+@enduml
