@@ -1,63 +1,121 @@
 @startuml
 title Modello del Dominio della Soluzione
 
+package Control {
+    class Controller {
+        - accessoAmministratore: boolean
+    }
+
+    class utente {
+
+    }
+
+    class amministratore {
+
+    }
+
+    Controller +-- utente
+    Controller +-- amministratore
+    utente <|-r- amministratore
+}
+
+package GUI {
+    class MainView {
+        + MainView(Controller)
+        + select(MainView.Tab)
+        + set(MainView.Visualization)
+        + getAccediView(): AccediView
+        + getListaCalciatoriView(): ListaCalciatoriView
+        + getAggiungiView(): AggiungiView
+        + displayError(String)
+    }
+
+    class AccediView {
+        + AccediView(Controller)
+    }
+
+    class ProfiloView {
+        + ProfiloView(Controller)
+    }
+
+    class ListaCalciatoriView {
+        + ListaCalciatoriView(Controller)
+        + setList(List<Calciatore>)
+        + displayError(String)
+        + showDetails(Calciatore)
+        + hideDetails()
+    }
+
+    class AggiungiView {
+        + AggiungiView(Controller)
+        + select(AggiungiView.Tab)
+        + set(MainView.Visualization)
+        + getTabView(MainView.Tab): JFrame
+    }
+}
+
 package DAO {
     interface CalciatoreDAO {
         ---
-        + readCalciatori(filter: Filter): List<Calciatore>
-        + read(id: int): Calciatore
-        + update(calciatore: Calciatore): Calciatore
-        + delete(calciatore: Calciatore): void
-        + create(calciatore: Calciatore): Calciatore
+        + readCalciatori(Filter): List<Calciatore>
+        + read(int): Calciatore
+        + update(Calciatore): Calciatore
+        + delete(Calciatore): void
+        + create(Calciatore): Calciatore
     }
 
     interface SkillsDAO {
         ---
-        + readSkillsDi(idCalciatore: int): List<Skill>
-        + delete(skill: Skill, calciatore: Calciatore): void
-        + create(skill: Skill, calciatore: Calciatore): void
+        + readSkillsDi(int): List<Skill>
+        + delete(Skill, Calciatore): void
+        + create(Skill, Calciatore): void
     }
 
     interface RuoliDAO {
         ---
-        + readRuoliDi(idCalciatore: int): List<Ruolo>
-        + delete(ruolo: Ruolo, calciatore: Calciatore): void
-        + create(ruolo: Ruolo, calciatore: Calciatore): void
+        + readRuoliDi(int): List<Ruolo>
+        + delete(Ruolo, Calciatore): void
+        + create(Ruolo, Calciatore): void
     }
 
     interface SquadraDAO {
         ---
         + readSquadre(): List<Squadre>
-        + update(old: Squadra, new: Squadra): Squadra
-        + delete(squadra: Squadra): void
-        + create(squadra: Squadra): Squadra
+        + update(Squadra, Squadra): Squadra
+        + delete(Squadra): void
+        + create(Squadra): Squadra
     }
 
     interface MilitanzaDAO {
         ---
-        + readMilitanzeDi(calciatore: Calciatore): List<Militanza>
-        + update(militanza: Militanza): Militanza
-        + delete(militanza: Militanza): void
-        + create(militanza: Militanza): Militanza
+        + readMilitanzeDi(Calciatore): List<Militanza>
+        + update(Militanza): Militanza
+        + delete(Militanza): void
+        + create(Militanza): Militanza
     }
 
     interface PeriodoDAO {
-        + readPeriodiDi(militanza: Militanza): List<Militanza>
-        + update(periodo: Periodo): Periodo
-        + delete(periodo: Periodo): void
-        + create(periodo: Periodo): Periodo
+        + readPeriodiDi(Militanza): List<Militanza>
+        + update(Periodo): Periodo
+        + delete(Periodo): void
+        + create(Periodo): Periodo
     }
 
     interface TrofeoDAO {
         ---
-        + readTrofeiDi(calciatore: Calciatore): List<TrofeoIndividuale>
-        + readTrofeiDi(squadra: Squadra): List<TrofeoDiSquadra>
-        + delete(trofeo: Trofeo): void
-        + create(trofeo: Trofeo): Trofeo
+        + readTrofeiDi(Calciatore): List<TrofeoIndividuale>
+        + readTrofeiDi(Squadra): List<TrofeoDiSquadra>
+        + delete(Trofeo): void
+        + create(Trofeo): Trofeo
     }
 }
 
-package PostgreImplDAO {
+note left of DAO.SquadraDAO: \
+Il metodo ""update()"" prende come primo\n\
+argomento la squadra che si vuole sostituire e\n\
+come secondo argomento la nuova squadra
+
+package PostgresImplDAO {
     class CalciatorePostgresImplDAO implements DAO.CalciatoreDAO
     class SkillsPostgresImplDAO implements DAO.SkillsDAO
     class RuoliPostgresImplDAO implements DAO.RuoliDAO
@@ -66,6 +124,15 @@ package PostgreImplDAO {
     class PeriodoPostgresImplDAO implements DAO.PeriodoDAO
     class TrofeoPostgresImplDAO implements DAO.TrofeoDAO
 }
+
+package Database {
+    class DatabaseConnection {
+        + <u>getInstance(): DatabaseConnection
+        + getConnection(): Connection
+    }
+}
+
+PostgresImplDAO ..> Database: <<use>>
 
 package Model {
     enum Ruolo {
@@ -174,18 +241,18 @@ package Model {
 
     interface Utente {
         ---
-        + accediComeAmministratore(password: String): Utente
-        + vediElencoCalciatori(): List<Calciatore>
-        + vediCaratteristicheCalciatore(calciatore: Calciatore): Calciatore
-        + filtraPer(filtro: Filtro): List<Calciatore>
+        + <u>accediComeAmministratore(String)
+        + <u>vediElencoCalciatori()
+        + <u>vediCaratteristicheCalciatore(Calciatore)
+        + <u>filtraPer(Filtro)
     }
 
     interface Amministratore {
         ---
-        + inserisciCalciatore(nome: String, cognome: String, dataDiNascita: Date, dataDiRitiro: Date?, skills: List<Skill>, ruoli: List<Ruolo>, piede: Piede, carriera: List<Militanza>): Calciatore
-        + modificaCalciatore(calciatore: Calciatore, nome: String?, cognome: String?, dataDiNascita: Date?, dataDiRitiro: Date?, skills: List<Skill>?, ruoli: List<Ruolo>?, piede: Piede?, carriera: List<Militanza>?): Calciatore
-        + eliminaCalciatore(calciatore: Calciatore): bool
-        + logout(): Utente
+        + <u>inserisciCalciatore(String, String, Date, Date?, List<Skill>, List<Ruolo>, Piede, List<Militanza>)
+        + <u>modificaCalciatore(Calciatore, String, String, Date, Date?, List<Skill>, List<Ruolo>, Piede, List<Militanza>)
+        + <u>eliminaCalciatore(Calciatore)
+        + <u>logout()
     }
 
     class Filtro {
@@ -227,5 +294,20 @@ package Model {
 
     MilitanzaPortiere -[hidden]- Utente
 }
+
+Control.utente ..|> Model.Utente
+Control.amministratore ..|> Model.Amministratore
+
+note bottom of Model.Amministratore:\
+La lista dei parametri dei metodi ""inserisciCalciatore(...)""\n\
+e ""modificaCalciatore(Calciatore, ...)"" sono in ordine:\n\
+ - nome: String\n\
+ - cognome: String\n\
+ - dataDiNascita: Date\n\
+ - dataDiRitiro: Date?\n\
+ - skills: List<Skill>\n\
+ - ruoli: List<Ruolo>\n\
+ - piede: Piede\n\
+ - carriera: List<Militanza>\n\
 
 @enduml
