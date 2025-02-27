@@ -1,0 +1,19 @@
+package Model;
+
+public enum Skill {
+    COLPO_DI_TESTA,
+    TACKLE,
+    ROVESCIATA,
+    DRIBBLING,
+    PASSAGGIO,
+    TIRO,
+    CONTROLLO_PALLA,
+    FINTA,
+    CROSS,
+    VELOCITA,
+    AGILITA,
+    RESISTENZA,
+    VISIONE_DI_GIOCO,
+    POSIZIONAMENTO,
+    LEADERSHIP
+}
