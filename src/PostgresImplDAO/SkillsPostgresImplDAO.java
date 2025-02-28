@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SkillsPostgresImplDAO implements SkillsDAO {
-    private DatabaseConnection databaseConnection;
+    private final DatabaseConnection databaseConnection;
 
     public SkillsPostgresImplDAO() {
         databaseConnection = DatabaseConnection.getInstance();
@@ -24,7 +24,8 @@ public class SkillsPostgresImplDAO implements SkillsDAO {
         ArrayList<Skill> skills = new ArrayList<>();
         Connection connection = databaseConnection.getConnection();
         Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT * FROM skills WHERE skill = '" + idCalciatore + "'");
+        ResultSet resultSet = statement.executeQuery(
+                "SELECT * FROM skills WHERE id_calciatore = '" + idCalciatore + "'");
         while (resultSet.next()) {
             Skill skill = Skill.valueOf(resultSet.getString("skill"));
             skills.add(skill);
@@ -33,22 +34,22 @@ public class SkillsPostgresImplDAO implements SkillsDAO {
     }
 
     @Override
-    public void delete(Skill skill, Calciatore calciatore) throws SQLException {
+    public void delete(Skill skill, int idCalciatore) throws SQLException {
         Connection connection = databaseConnection.getConnection();
         Statement statement = connection.createStatement();
         statement.executeQuery(
                 "DELETE FROM skills WHERE skill = '" + skill.name() +
-                        "' , " + "id_calciatore '" + calciatore.getId() + "'");
+                        "' , " + "id_calciatore = '" + idCalciatore + "'");
         statement.close();
     }
 
     @Override
-    public void create(Skill skill, Calciatore calciatore) throws SQLException {
+    public void create(Skill skill, int idCalciatore) throws SQLException {
         Connection connection = databaseConnection.getConnection();
         Statement statement = connection.createStatement();
         statement.executeQuery(
                 "INSERT INTO skills(id_calciatore, skill) VALUES ("
-                        + calciatore.getId() + "," + skill.name() + ")");
+                        + idCalciatore + "," + skill.name() + ")");
         statement.close();
     }
 }
