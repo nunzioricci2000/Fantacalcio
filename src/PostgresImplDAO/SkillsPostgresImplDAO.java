@@ -2,7 +2,6 @@ package PostgresImplDAO;
 
 import DAO.SkillsDAO;
 import Database.DatabaseConnection;
-import Model.Calciatore;
 import Model.Skill;
 
 import java.sql.Connection;
@@ -30,6 +29,8 @@ public class SkillsPostgresImplDAO implements SkillsDAO {
             Skill skill = Skill.valueOf(resultSet.getString("skill"));
             skills.add(skill);
         }
+        statement.close();
+        resultSet.close();
         return skills;
     }
 
@@ -37,9 +38,9 @@ public class SkillsPostgresImplDAO implements SkillsDAO {
     public void delete(Skill skill, int idCalciatore) throws SQLException {
         Connection connection = databaseConnection.getConnection();
         Statement statement = connection.createStatement();
-        statement.executeQuery(
+        statement.executeUpdate(
                 "DELETE FROM skills WHERE skill = '" + skill.name() +
-                        "' , " + "id_calciatore = '" + idCalciatore + "'");
+                        "' AND id_calciatore = '" + idCalciatore + "'");
         statement.close();
     }
 
@@ -47,9 +48,9 @@ public class SkillsPostgresImplDAO implements SkillsDAO {
     public void create(Skill skill, int idCalciatore) throws SQLException {
         Connection connection = databaseConnection.getConnection();
         Statement statement = connection.createStatement();
-        statement.executeQuery(
+        statement.executeUpdate(
                 "INSERT INTO skills(id_calciatore, skill) VALUES ("
-                        + idCalciatore + "," + skill.name() + ")");
+                        + idCalciatore + ", " + skill.name() + ")");
         statement.close();
     }
 }
