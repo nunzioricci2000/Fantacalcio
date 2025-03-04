@@ -95,7 +95,7 @@ public class Calciatore {
         return new ArrayList<>(this.ruoli);
     }
 
-    public void setRuoli(ArrayList<Ruolo> ruoli) {
+    public void setRuoli(List<Ruolo> ruoli) {
         this.ruoli.removeIf((_)->true);
         this.ruoli.addAll(ruoli);
     }
@@ -104,7 +104,7 @@ public class Calciatore {
         return new ArrayList<>(this.skills);
     }
 
-    public void setSkills(ArrayList<Skill> skills) {
+    public void setSkills(List<Skill> skills) {
         this.skills.removeIf((_)->true);
         this.skills.addAll(skills);
     }
@@ -113,7 +113,7 @@ public class Calciatore {
         return new ArrayList<>(this.trofei);
     }
 
-    public void setTrofei(ArrayList<Trofeo> trofei) {
+    public void setTrofei(List<Trofeo> trofei) {
         this.trofei.removeIf((_)->true);
         this.trofei.addAll(trofei);
     }
@@ -122,7 +122,7 @@ public class Calciatore {
         return new ArrayList<>(this.carriera);
     }
 
-    public void setCarriera(ArrayList<Militanza> carriera) {
+    public void setCarriera(List<Militanza> carriera) {
         this.carriera.removeIf((_)->true);
         this.carriera.addAll(carriera);
     }
