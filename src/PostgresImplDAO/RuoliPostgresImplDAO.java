@@ -12,16 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RuoliPostgresImplDAO implements RuoliDAO {
-    private final DatabaseConnection databaseConnection;
+    private final Connection connection;
 
     public RuoliPostgresImplDAO() {
-        databaseConnection = DatabaseConnection.getInstance();
+        connection = DatabaseConnection.getInstance().getConnection();
     }
 
     @Override
     public List<Ruolo> readRuoliDi(int idCalciatore) throws SQLException {
         ArrayList<Ruolo> ruoli = new ArrayList<>();
-        Connection connection = databaseConnection.getConnection();
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM ruoli WHERE id_calciatore = " + idCalciatore);
         while (resultSet.next()) {
@@ -35,7 +34,6 @@ public class RuoliPostgresImplDAO implements RuoliDAO {
 
     @Override
     public void delete(Ruolo ruolo, int idCalciatore) throws SQLException {
-        Connection connection = databaseConnection.getConnection();
         Statement statement = connection.createStatement();
         statement.executeQuery(
                 "DELETE FROM ruoli WHERE ruolo = '" + ruolo.name() +
@@ -45,7 +43,6 @@ public class RuoliPostgresImplDAO implements RuoliDAO {
 
     @Override
     public void create(Ruolo ruolo, int idCalciatore) throws SQLException {
-        Connection connection = databaseConnection.getConnection();
         Statement statement = connection.createStatement();
         statement.executeQuery(
                 "INSERT INTO ruolo(id_calciatore, ruolo) VALUES ("
