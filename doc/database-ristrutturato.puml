@@ -1,0 +1,81 @@
+@startuml
+title Modello Base di Dati Ristrutturato
+
+enum T_RUOLO {
+  PORTIERE
+  DIFENSORE
+  CENTROCAMPISTA
+  ATTACCANTE
+}
+
+enum T_PIEDE {
+  SINISTO
+  DESTRO
+  AMBIDESTRO
+}
+
+enum T_SKILL {
+  COLPO_DI_TESTA
+  TACKLE
+  ROVESCIATA
+  DRIBBLING
+  PASSAGGIO
+  TIRO
+  CONTROLLO_PALLA
+  FINTA
+  CROSS
+  VELOCITA
+  AGILITA
+  RESISTENZA
+  VISIONE_DI_GIOCO
+  POSIZIONAMENTO
+  LEADERSHIP
+}
+
+class Calciatore {
+  - id: int
+  - nome: String
+  - cognome: String
+  - dataDiNascita: Date
+  - dataDiRitiro: Date?
+  - piede: T_PIEDE
+}
+
+class Skills {
+  - skill: T_SKILL
+}
+
+class Ruoli {
+  - ruoli: T_RUOLO
+}
+
+class Squadra {
+  - nome: String
+  - nazionalità: String
+}
+
+class Militanza {
+  - partiteGiocate: int
+  - goalSegnati: int
+  - goalSubiti: int
+}
+
+class Periodo {
+  - dataInizio: Date
+  - dataFine: Date
+}
+
+class Trofeo {
+  - nome: String
+  - data: Date
+}
+
+Calciatore "0..*" -r- "0..*" Squadra
+Militanza ..... (Squadra, Calciatore)
+Militanza "1" -r- "1..*" Periodo
+Squadra "0..1" -- "0..*" Trofeo
+Calciatore "0..1" -- "0..*" Trofeo
+Calciatore "1" -- "1..*" Ruoli
+Calciatore "1" -- "0..*" Skills
+
+@enduml
