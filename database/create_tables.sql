@@ -161,3 +161,36 @@ CREATE TABLE Ruoli (
     CONSTRAINT fk_ruoli_calciatore FOREIGN KEY (ID_CALCIATORE)
         REFERENCES Calciatore(ID)
 );
+
+
+----------------------------------------------------------------
+-- View TrofeiCalciatore
+----------------------------------------------------------------
+
+CREATE VIEW TrofeiCalciatore AS
+SELECT
+    C.ID AS ID_CALCIATORE,
+    T.NOME AS NOME_TROFEO,
+    T.DATA AS DATA_TROFEO,
+    T.NOME_SQUADRA AS NOME_SQUADRA,
+    T.NAZIONALITÀ_SQUADRA AS NAZIONALITÀ_SQUADRA
+FROM
+    Calciatore C
+        JOIN
+    Trofeo T ON C.ID = T.ID_CALCIATORE
+UNION ALL
+SELECT
+    C.ID AS ID_CALCIATORE,
+    T.NOME AS NOME_TROFEO,
+    T.DATA AS DATA_TROFEO,
+    T.NOME_SQUADRA,
+    T.NAZIONALITÀ_SQUADRA
+FROM
+    Calciatore C
+        JOIN
+    Periodo P ON C.ID = P.ID_CALCIATORE
+        JOIN
+    Trofeo T ON P.NOME_SQUADRA = T.NOME_SQUADRA AND P.NAZIONALITÀ_SQUADRA = T.NAZIONALITÀ_SQUADRA
+WHERE
+    T.ID_CALCIATORE IS NULL
+  AND T.DATA BETWEEN P.DATA_INIZIO AND P.DATA_FINE;
