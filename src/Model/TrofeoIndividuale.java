@@ -3,17 +3,14 @@ package Model;
 import java.util.Date;
 
 public class TrofeoIndividuale extends Trofeo {
-    private final Calciatore calciatore;
+    private final int idCalciatore;
 
-    public TrofeoIndividuale(String nome, Date data, Calciatore calciatore) {
+    public TrofeoIndividuale(String nome, Date data, int idCalciatore) {
         super(nome, data);
-        if (calciatore == null) {
-            throw new IllegalArgumentException("calciatore is null");
-        }
-        this.calciatore = calciatore;
+        this.idCalciatore = idCalciatore;
     }
 
-    public Calciatore getCalciatore() {
-        return calciatore;
+    public int getIdCalciatore() {
+        return idCalciatore;
     }
 }
