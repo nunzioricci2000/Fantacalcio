@@ -57,45 +57,51 @@ public class Filtro {
     public static class Builder {
         private Filtro filtro;
 
-        public Builder() {}
+        public Builder() {
+            filtro = new Filtro();
+        }
 
-        void buildNome(String nome) {
+        public void buildNome(String nome) {
             filtro.nome = nome;
         }
 
-        void buildRuolo(String ruolo) {
+        public void buildRuolo(String ruolo) {
             filtro.ruolo = ruolo;
         }
 
-        void buildPiede(Piede piede) {
+        public void buildPiede(Piede piede) {
             filtro.piede = piede;
         }
 
-        void buildMinimoGoalSegnati(Integer minimoGoalSegnati) {
+        public void buildMinimoGoalSegnati(Integer minimoGoalSegnati) {
             filtro.minimoGoalSegnati = minimoGoalSegnati;
         }
 
-        void buildMinimoGoalSubiti(Integer minimoGoalSubiti) {
+        public void buildMassimoGoalSegnati(Integer massimoGoalSegnati) {
+            filtro.massimoGoalSegnati = massimoGoalSegnati;
+        }
+
+        public void buildMinimoGoalSubiti(Integer minimoGoalSubiti) {
             filtro.minimoGoalSubiti = minimoGoalSubiti;
         }
 
-        void buildMassimoGoalSubiti(Integer massimoGoalSubiti) {
+        public void buildMassimoGoalSubiti(Integer massimoGoalSubiti) {
             filtro.massimoGoalSubiti = massimoGoalSubiti;
         }
 
-        void buildMinimoEta(Integer minimoEta) {
+        public void buildMinimoEta(Integer minimoEta) {
             filtro.minimoEta = minimoEta;
         }
 
-        void buildMassimoEta(Integer massimoEta) {
+        public void buildMassimoEta(Integer massimoEta) {
             filtro.massimoEta = massimoEta;
         }
 
-        void buildSquadra(Squadra squadra) {
+        public void buildSquadra(Squadra squadra) {
             filtro.squadra = squadra;
         }
 
-        Filtro getResult() {
+        public Filtro getResult() {
             Filtro filtro = this.filtro;
             this.filtro = new Filtro();
             return filtro;
