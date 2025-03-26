@@ -2,11 +2,11 @@ package DAO;
 
 import Model.*;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public interface TrofeoDAO {
-    List<TrofeoIndividuale> readTrofeiDi(Calciatore calciatore);
-    List<TrofeoDiSquadra> readTrofeiDi(Squadra squadra);
-    void delete(Trofeo trofeo);
-    Trofeo readTrofeo(Calciatore calciatore);
+    List<Trofeo> readTrofeiDi(int idCalciatore) throws SQLException;
+    void delete(Trofeo trofeo) throws SQLException;
+    void create(Trofeo trofeo) throws SQLException;
 }

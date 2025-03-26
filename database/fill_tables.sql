@@ -41,7 +41,7 @@ INSERT INTO Militanza (ID_CALCIATORE, NOME_SQUADRA, NAZIONALITÀ_SQUADRA, PARTIT
 
 -- 5. Periodi di militanza
 -- Per ogni calciatore viene registrato il periodo (stagione 2023-2024)
-INSERT INTO Periodo (ID_CALCIATORE, NOME_SQUADRA, NAZIONALITÀ, DATA_INIZIO, DATA_FINE) VALUES
+INSERT INTO Periodo (ID_CALCIATORE, NOME_SQUADRA, NAZIONALITÀ_SQUADRA, DATA_INIZIO, DATA_FINE) VALUES
                                                                                            (1, 'Juventus', 'Italia', '2023-08-01', '2024-06-30'),
                                                                                            (2, 'Juventus', 'Italia', '2023-08-01', '2024-06-30'),
                                                                                            (3, 'Juventus', 'Italia', '2023-08-01', '2024-06-30'),
