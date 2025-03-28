@@ -2,7 +2,6 @@ package PostgresImplDAO;
 
 import DAO.PeriodoDAO;
 import Database.DatabaseConnection;
-import Model.Militanza;
 import Model.Periodo;
 import Model.Squadra;
 

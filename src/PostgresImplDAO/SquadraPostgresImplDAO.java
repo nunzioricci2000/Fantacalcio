@@ -2,7 +2,6 @@ package PostgresImplDAO;
 
 import DAO.SquadraDAO;
 import Database.DatabaseConnection;
-import Model.Ruolo;
 import Model.Squadra;
 
 import java.sql.Connection;

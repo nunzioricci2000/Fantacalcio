@@ -1,147 +1,175 @@
 package Control;
 
+import DAO.*;
 import Model.*;
+import UI.UserInterface;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Controller implements Utente, Amministratore {
-    private boolean isAmministratore = false;
-    private final ArrayList<Calciatore> calciatori = new ArrayList<>();
-    private Filtro filtro = null;
-
-    public Controller() {}
-
-    public boolean isAmministratore() {
-        return isAmministratore;
+    private final UserInterface ui;
+    private final CalciatoreDAO calciatoreDAO;
+    private final SkillsDAO skillsDAO;
+    private final RuoliDAO ruoliDAO;
+    private final SquadraDAO squadraDAO;
+    private final MilitanzaDAO militanzaDAO;
+    private final TrofeoDAO trofeoDAO;
+    
+    private boolean isAdmin = false;
+    private static final String ADMIN_PASSWORD = "admin";
+    
+    public Controller(UserInterface ui, CalciatoreDAO calciatoreDAO, SkillsDAO skillsDAO, 
+                     RuoliDAO ruoliDAO, SquadraDAO squadraDAO, MilitanzaDAO militanzaDAO,
+                     TrofeoDAO trofeoDAO) {
+        this.calciatoreDAO = calciatoreDAO;
+        this.skillsDAO = skillsDAO;
+        this.ruoliDAO = ruoliDAO;
+        this.squadraDAO = squadraDAO;
+        this.militanzaDAO = militanzaDAO;
+        this.trofeoDAO = trofeoDAO;
+        this.ui = ui;
+        ui.setController(this);
     }
-
-    public ArrayList<Calciatore> getCalciatori() {
-        if (filtro == null) {
-            return calciatori;
-        }
-        ArrayList<Calciatore> listaCalciatori = new ArrayList<>(calciatori);
-        if (filtro.getNome() != null && !filtro.getNome().isEmpty()) {
-            listaCalciatori = listaCalciatori.stream()
-                    .filter(c -> (c.getNome() + " " + c.getCognome()).toLowerCase().contains(filtro.getNome().toLowerCase()))
-                    .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
-        }
-        return listaCalciatori;
+    
+    public void startApplication() {
+        ui.initialize();
+        ui.showLoginView();
     }
-
-    @Override
-    public void inserisciCalciatore(String nome, String cognome, Date dataDiNascita, Date dataDiRitiro, List<Skill> skills, List<Ruolo> ruoli, Piede piede, List<Militanza> carriera) {
-        if (!isAmministratore) {
-            showError("Amministratore non autenticato! Azione non consentita!");
-            return;
-        }
-        if (!isValidInfoCalciatore(nome, cognome, dataDiNascita, dataDiRitiro, skills, ruoli, piede, carriera)) {
-            return;
-        }
-        // TODO
-        Calciatore calciatore = new Calciatore(calciatori.stream().map(Calciatore::getId).max(Comparator.naturalOrder()).orElse(0), nome, cognome, dataDiNascita, dataDiRitiro, piede, ruoli, skills, new ArrayList<>(), carriera);
-        calciatori.add(calciatore);
-        viewCalciatori();
-    }
-
-    @Override
-    public void modificaCalciatore(Calciatore calciatore, String nome, String cognome, Date dataDiNascita, Date dataDiRitiro, List<Skill> skills, List<Ruolo> ruoli, Piede piede, List<Militanza> carriera) {
-        if (!isAmministratore) {
-            showError("Amministratore non autenticato! Azione non consentita!");
-            return;
-        }
-        if (!isValidInfoCalciatore(nome, cognome, dataDiNascita, dataDiRitiro, skills, ruoli, piede, carriera)) {
-            return;
-        }
-        // TODO
-        calciatore.setNome(nome);
-        calciatore.setCognome(cognome);
-        calciatore.setDataDiNascita(dataDiNascita);
-        calciatore.setDataDiRitiro(dataDiRitiro);
-        calciatore.setSkills(skills);
-        calciatore.setRuoli(ruoli);
-        calciatore.setPiede(piede);
-        calciatore.setCarriera(carriera);
-        viewCalciatori();
-    }
-
-    @Override
-    public void eliminaCalciatore(Calciatore calciatore) {
-        if (!isAmministratore) {
-            showError("Amministratore non autenticato! Azione non consentita!");
-            return;
-        }
-        // TODO
-        calciatori.remove(calciatore);
-        viewCalciatori();
-    }
-
-    @Override
-    public void logout() {
-        if (!isAmministratore) {
-            showError("Amministratore non autenticato! Azione non consentita!");
-            isAmministratore = false;
-        }
-        viewLogin();
-    }
-
+    
+    // Implementazione dei metodi dell'interfaccia Utente
     @Override
     public void accediComeAmministratore(String password) {
-        if (password.equals("admin")) {
-            switchToAmministratore();
+        if (ADMIN_PASSWORD.equals(password)) {
+            isAdmin = true;
+            ui.notifyAdminMode(true);
+            ui.showAdminView();
+            ui.showMessage("Accesso come amministratore effettuato");
         } else {
-            showError("Password errata!");
+            ui.showError("Password errata");
         }
     }
 
     @Override
     public void vediElencoCalciatori() {
-        viewCalciatori();
+        try {
+            List<Calciatore> calciatori = calciatoreDAO.readCalciatori(null);
+            ui.displayCalciatori(calciatori);
+        } catch (SQLException e) {
+            ui.showError("Errore durante il recupero dei calciatori: " + e.getMessage());
+        }
     }
 
     @Override
-    public void vediCaratteristicheCalciatore(Calciatore calciatore) {
-        viewCalciatore(calciatore);
+    public void vediCaratteristicheCalciatore(int id) {
+        try {
+            Calciatore dettaglio = calciatoreDAO.read(id);
+            ui.displayDettaglioCalciatore(dettaglio);
+        } catch (SQLException e) {
+            ui.showError("Errore durante il recupero dei dettagli del calciatore: " + e.getMessage());
+        }
     }
 
     @Override
     public void filtraPer(Filtro filtro) {
-        this.filtro = filtro;
+        try {
+            List<Calciatore> calciatoriFiltrati = calciatoreDAO.readCalciatori(filtro);
+            ui.displayCalciatori(calciatoriFiltrati);
+        } catch (SQLException e) {
+            ui.showError("Errore durante il filtraggio dei calciatori: " + e.getMessage());
+        }
+    }
+    
+    @Override
+    public void inserisciCalciatore(String nome, String cognome, Date dataDiNascita, 
+                                  Date dataDiRitiro, List<Skill> skills, List<Ruolo> ruoli, 
+                                  Piede piede, List<Militanza> carriera) {
+        if (!isAdmin) {
+            ui.showError("Devi essere amministratore per inserire un calciatore");
+            return;
+        }
+        
+        try {
+            Calciatore nuovoCalciatore = new Calciatore(
+                0, nome, cognome, dataDiNascita, dataDiRitiro, 
+                piede, ruoli, skills, new ArrayList<>(), carriera
+            );
+            
+            calciatoreDAO.create(nuovoCalciatore);
+            ui.showMessage("Calciatore inserito con successo");
+            vediElencoCalciatori(); // Aggiorna la lista
+        } catch (SQLException e) {
+            ui.showError("Errore durante l'inserimento del calciatore: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            ui.showError("Dati non validi: " + e.getMessage());
+        }
     }
 
-    private void showError(String message) {
-        System.err.println(message);
+    @Override
+    public void modificaCalciatore(Calciatore calciatore, String nome, String cognome, 
+                                 Date dataDiNascita, Date dataDiRitiro, List<Skill> skills, 
+                                 List<Ruolo> ruoli, Piede piede, List<Militanza> carriera) {
+        if (!isAdmin) {
+            ui.showError("Devi essere amministratore per modificare un calciatore");
+            return;
+        }
+        
+        try {
+            calciatore.setNome(nome);
+            calciatore.setCognome(cognome);
+            calciatore.setDataDiNascita(dataDiNascita);
+            calciatore.setDataDiRitiro(dataDiRitiro);
+            calciatore.setPiede(piede);
+            calciatore.setRuoli(ruoli);
+            calciatore.setSkills(skills);
+            calciatore.setCarriera(carriera);
+            
+            calciatoreDAO.update(calciatore);
+            ui.showMessage("Calciatore modificato con successo");
+            vediElencoCalciatori(); // Aggiorna la lista
+        } catch (SQLException e) {
+            ui.showError("Errore durante la modifica del calciatore: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            ui.showError("Dati non validi: " + e.getMessage());
+        }
     }
 
-    private boolean isValidInfoCalciatore(String nome, String cognome, Date dataDiNascita, Date dataDiRitiro, List<Skill> skills, List<Ruolo> ruoli, Piede piede, List<Militanza> carriera) {
-        if (nome == null || nome.isEmpty()) { showError("Nome non valido!"); return false; }
-        if (cognome == null || cognome.isEmpty()) { showError("Cognome non valido!"); return false; }
-        if (dataDiNascita == null || dataDiNascita.getTime() > new Date().getTime()) { showError("Data di nascita non valida!"); return false; }
-        if (skills == null) { showError("Skills non valido!"); return false; }
-        if (ruoli == null || ruoli.isEmpty()) { showError("Ruolo non valido!"); return false; }
-        if (piede == null) { showError("Piede non valido!"); return false; }
-        if (carriera == null) { showError("Carriera non valido!"); return false; }
-        return true;
+    @Override
+    public void eliminaCalciatore(Calciatore calciatore) {
+        if (!isAdmin) {
+            ui.showError("Devi essere amministratore per eliminare un calciatore");
+            return;
+        }
+        
+        try {
+            calciatoreDAO.delete(calciatore);
+            ui.showMessage("Calciatore eliminato con successo");
+            vediElencoCalciatori(); // Aggiorna la lista
+        } catch (SQLException e) {
+            ui.showError("Errore durante l'eliminazione del calciatore: " + e.getMessage());
+        }
     }
 
-    private void viewCalciatori() {
-        System.out.println("Calciatori");
+    @Override
+    public void logout() {
+        isAdmin = false;
+        ui.notifyAdminMode(false);
+        ui.showLoginView();
+        ui.showMessage("Logout effettuato con successo");
+    }
+    
+    public List<Squadra> getSquadre() {
+        try {
+            return squadraDAO.readSquadre();
+        } catch (SQLException e) {
+            ui.showError("Errore durante il recupero delle squadre: " + e.getMessage());
+            return new ArrayList<>();
+        }
     }
 
-    private void viewLogin() {
-        System.out.println("Login");
-    }
-
-    private void switchToAmministratore() {
-        isAmministratore = true;
-        System.out.println("Sei amministratore");
-    }
-
-    private void viewCalciatore(Calciatore calciatore) {
-        System.out.println("Calciatore: " + calciatore.getNome() + " " + calciatore.getCognome());
-        System.out.println("Data di nascita: " + calciatore.getDataDiNascita());
+    public List<Calciatore> getCalciatori() throws SQLException {
+        return calciatoreDAO.readCalciatori(null);
     }
 }

@@ -1,6 +1,5 @@
 package DAO;
 
-import Model.Calciatore;
 import Model.Skill;
 
 import java.sql.SQLException;
