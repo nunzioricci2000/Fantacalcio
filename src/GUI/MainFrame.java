@@ -3,6 +3,7 @@ package GUI;
 import Control.Controller;
 import GUI.Calciatori.CalciatoriAggiungiView;
 import GUI.Calciatori.CalciatoriView;
+import GUI.Calciatori.MilitanzeAggiungiView;
 import Model.Calciatore;
 import UI.UserInterface;
 
@@ -17,6 +18,7 @@ public class MainFrame extends JFrame implements UserInterface {
     private LogoutView logoutView;
     private CalciatoriView calciatoriView;
     private CalciatoriAggiungiView aggiungiCalciatoreView;
+    private MilitanzeAggiungiView aggiungiMilitanzaView;
     private JPanel statusBar;
     private JLabel statusLabel;
     private final int loginTabIndex = 0;
@@ -43,11 +45,12 @@ public class MainFrame extends JFrame implements UserInterface {
         logoutView = new LogoutView(controller);
         calciatoriView = new CalciatoriView(controller);
         aggiungiCalciatoreView = new CalciatoriAggiungiView(controller);
+        aggiungiMilitanzaView = new MilitanzeAggiungiView(controller);
         
         // Aggiungi le viste alla tab
         tabbedPane.addTab("Login", loginView);
         tabbedPane.addTab("Calciatori", calciatoriView);
-        // La scheda "Aggiungi Calciatore" verrà aggiunta solo quando l'utente accede come admin
+        // Le schede "Aggiungi Calciatore" e "Aggiungi Militanza" verranno aggiunte solo quando l'utente accede come admin
         
         // Status bar per i messaggi
         statusBar = new JPanel(new BorderLayout());
@@ -99,6 +102,14 @@ public class MainFrame extends JFrame implements UserInterface {
             tabbedPane.setSelectedComponent(aggiungiCalciatoreView);
         }
     }
+    
+    @Override
+    public void showAggiungiMilitanzaView() {
+        // Mostra la scheda "Aggiungi Militanza" solo se è presente
+        if (tabbedPane.indexOfComponent(aggiungiMilitanzaView) != -1) {
+            tabbedPane.setSelectedComponent(aggiungiMilitanzaView);
+        }
+    }
 
     @Override
     public void displayCalciatori(List<Calciatore> calciatori) {
@@ -121,6 +132,11 @@ public class MainFrame extends JFrame implements UserInterface {
             if (tabbedPane.indexOfComponent(aggiungiCalciatoreView) == -1) {
                 tabbedPane.addTab("Aggiungi Calciatore", aggiungiCalciatoreView);
             }
+            
+            // Aggiunge la scheda "Aggiungi Militanza" se non è già presente
+            if (tabbedPane.indexOfComponent(aggiungiMilitanzaView) == -1) {
+                tabbedPane.addTab("Aggiungi Militanza", aggiungiMilitanzaView);
+            }
         } else {
             // Ripristina la tab di login
             tabbedPane.setComponentAt(loginTabIndex, loginView);
@@ -129,6 +145,11 @@ public class MainFrame extends JFrame implements UserInterface {
             // Rimuove la scheda "Aggiungi Calciatore" se presente
             if (tabbedPane.indexOfComponent(aggiungiCalciatoreView) != -1) {
                 tabbedPane.remove(aggiungiCalciatoreView);
+            }
+            
+            // Rimuove la scheda "Aggiungi Militanza" se presente
+            if (tabbedPane.indexOfComponent(aggiungiMilitanzaView) != -1) {
+                tabbedPane.remove(aggiungiMilitanzaView);
             }
         }
     }

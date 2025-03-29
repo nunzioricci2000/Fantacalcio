@@ -123,7 +123,7 @@ public class CalciatorePostgresImplDAO implements CalciatoreDAO {
     @Override
     public Calciatore update(Calciatore calciatore) throws SQLException {
         String query = "UPDATE calciatore SET nome = ?, cognome = ?, data_di_nascita = ?, " +
-                "data_di_ritiro = ?, piede = ? WHERE id = ?";
+                "data_di_ritiro = ?, piede = ?::T_PIEDE WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, calciatore.getNome());
             stmt.setString(2, calciatore.getCognome());

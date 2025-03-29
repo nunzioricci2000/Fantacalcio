@@ -5,6 +5,7 @@ import Database.DatabaseConnection;
 import Model.*;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -13,9 +14,11 @@ import java.util.List;
 
 public class MilitanzaPostgresImplDAO implements MilitanzaDAO {
     private final Connection connection;
+    private final PeriodoPostgresImplDAO periodoDAO;
 
     public MilitanzaPostgresImplDAO() {
         connection = DatabaseConnection.getInstance().getConnection();
+        periodoDAO = new PeriodoPostgresImplDAO();
     }
 
     @Override
@@ -65,17 +68,28 @@ public class MilitanzaPostgresImplDAO implements MilitanzaDAO {
 
     @Override
     public Militanza create(int idCalciatore, Militanza militanza) throws SQLException {
-        Statement statement = connection.createStatement();
-        String goalSubiti = "NULL";
-        if (militanza instanceof MilitanzaPortiere) {
-            goalSubiti = String.valueOf(((MilitanzaPortiere) militanza).getGoalSubiti());
+        String sql = "INSERT INTO militanza(id_calciatore, nome_squadra, nazionalitÀ_squadra, partite_giocate, goal_segnati, goal_subiti) VALUES (?, ?, ?, ?, ?, ?)";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idCalciatore);
+            stmt.setString(2, militanza.getSquadra().nome());
+            stmt.setString(3, militanza.getSquadra().nazionalita());
+            stmt.setInt(4, militanza.getPartiteGiocate());
+            stmt.setInt(5, militanza.getGoalSegnati());
+            
+            if (militanza instanceof MilitanzaPortiere) {
+                stmt.setInt(6, ((MilitanzaPortiere) militanza).getGoalSubiti());
+            } else {
+                stmt.setNull(6, java.sql.Types.INTEGER);
+            }
+            
+            stmt.executeUpdate();
+            
+            for (Periodo periodo : militanza.getPeriodi()) {
+                periodoDAO.create(periodo, idCalciatore, militanza.getSquadra());
+            }
+            
+            return militanza;
         }
-        statement.executeUpdate(
-                "INSERT INTO militanza(id_calciatore, nome_squadra, nazionalitÀ_squadra, partite_giocate, goal_segnati, goal_subiti) VALUES ("
-                        + idCalciatore + ", '" + militanza.getSquadra().nome() + "', '"
-                        + militanza.getSquadra().nazionalita() + "', " + militanza.getPartiteGiocate()
-                        + ", " + militanza.getGoalSegnati() + ", " + goalSubiti + ")");
-        statement.close();
-        return militanza;
     }
 }

@@ -44,7 +44,7 @@ public class PeriodoPostgresImplDAO implements PeriodoDAO {
         statement.executeUpdate(
                 "DELETE FROM ruoli WHERE id_calciatore = " + idCalciatore +
                         " AND squadra = '" + squadra.nome() +
-                        "' AND nazionalita = '" + squadra.nazionalita() +
+                        "' AND nazionalitÀ_squadra = '" + squadra.nazionalita() +
                         "' AND data_inizio = '" + periodo.dataInizio() +
                         "' AND data_fine = '" + periodo.dataFine() + "'");
         statement.close();
@@ -54,7 +54,7 @@ public class PeriodoPostgresImplDAO implements PeriodoDAO {
     public Periodo create(Periodo periodo, int idCalciatore, Squadra squadra) throws SQLException {
         Statement statement = connection.createStatement();
         statement.executeUpdate(
-                "INSERT INTO periodo(id_calciatore, nome_squadra, nazionalitÀ, data_inizio, data_fine) VALUES ("
+                "INSERT INTO periodo(id_calciatore, nome_squadra, nazionalitÀ_squadra, data_inizio, data_fine) VALUES ("
                         + idCalciatore + ", '" + squadra.nome() + "', '"
                         + squadra.nazionalita() + "', '" + periodo.dataInizio() + "', '" + periodo.dataFine() + "')");
         statement.close();

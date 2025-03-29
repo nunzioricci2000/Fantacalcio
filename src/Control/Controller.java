@@ -171,4 +171,40 @@ public class Controller implements Utente, Amministratore {
     public List<Calciatore> getCalciatori() throws SQLException {
         return calciatoreDAO.readCalciatori(null);
     }
+    
+    public Calciatore getCalciatore(int id) throws SQLException {
+        return calciatoreDAO.read(id);
+    }
+
+    /**
+     * Aggiunge una nuova militanza per un calciatore
+     * @param idCalciatore ID del calciatore a cui aggiungere la militanza
+     * @param militanza Oggetto militanza con il periodo
+     * @throws SQLException se si verifica un errore nel database
+     */
+    public void addMilitanza(int idCalciatore, Militanza militanza) throws SQLException {
+        if (!isAdmin) {
+            ui.showError("Devi essere amministratore per aggiungere una militanza");
+            return;
+        }
+        
+        try {
+            // Usa il DAO della militanza per creare la nuova militanza (include già la gestione del periodo)
+            militanzaDAO.create(idCalciatore, militanza);
+            
+            // Aggiorna la vista del calciatore corrente
+            Calciatore calciatore = calciatoreDAO.read(idCalciatore);
+            if (calciatore != null) {
+                ui.displayDettaglioCalciatore(calciatore);
+            }
+            
+            ui.showMessage("Militanza aggiunta con successo");
+        } catch (SQLException e) {
+            ui.showError("Errore durante l'aggiunta della militanza: " + e.getMessage());
+            throw e;
+        } catch (IllegalArgumentException e) {
+            ui.showError("Dati non validi: " + e.getMessage());
+            throw e;
+        }
+    }
 }
