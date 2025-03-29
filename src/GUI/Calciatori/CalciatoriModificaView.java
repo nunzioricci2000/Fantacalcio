@@ -235,7 +235,7 @@ public class CalciatoriModificaView extends JPanel {
         JButton selectAllSkillsButton = new JButton("Seleziona Tutte");
         JButton deselectAllSkillsButton = new JButton("Deseleziona Tutte");
         
-        selectAllSkillsButton.addActionListener(e -> {
+        selectAllSkillsButton.addActionListener(_ -> {
             int[] indices = new int[Skill.values().length];
             for (int i = 0; i < Skill.values().length; i++) {
                 indices[i] = i;
@@ -243,7 +243,7 @@ public class CalciatoriModificaView extends JPanel {
             skillsList.setSelectedIndices(indices);
         });
         
-        deselectAllSkillsButton.addActionListener(e -> {
+        deselectAllSkillsButton.addActionListener(_ -> {
             skillsList.clearSelection();
         });
         
@@ -257,7 +257,7 @@ public class CalciatoriModificaView extends JPanel {
         JPanel buttonPanel = new JPanel();
         JButton salvaButton = new JButton("Salva Skills");
         
-        salvaButton.addActionListener(e -> {
+        salvaButton.addActionListener(_ -> {
             try {
                 List<Skill> selectedSkills = skillsList.getSelectedValuesList();
                 
@@ -322,7 +322,7 @@ public class CalciatoriModificaView extends JPanel {
         JPanel buttonPanel = new JPanel();
         JButton salvaButton = new JButton("Salva Ruoli");
         
-        salvaButton.addActionListener(e -> {
+        salvaButton.addActionListener(_ -> {
             try {
                 List<Ruolo> selectedRuoli = ruoliList.getSelectedValuesList();
                 

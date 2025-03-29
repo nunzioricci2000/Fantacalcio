@@ -6,7 +6,6 @@ import Model.*;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
 
@@ -131,15 +130,9 @@ public class MilitanzeAggiungiView extends JPanel {
         calciatoreComboBox = new JComboBox<>();
         calciatoreComboBox.setPreferredSize(new Dimension(300, 25));
         
-        try {
-            List<Calciatore> calciatori = controller.getCalciatori();
-            for (Calciatore calciatore : calciatori) {
-                calciatoreComboBox.addItem(new CalciatoreComboItem(calciatore));
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, 
-                "Errore nel caricamento dei calciatori: " + e.getMessage(), 
-                "Errore", JOptionPane.ERROR_MESSAGE);
+        List<Calciatore> calciatori = controller.getCalciatori();
+        for (Calciatore calciatore : calciatori) {
+            calciatoreComboBox.addItem(new CalciatoreComboItem(calciatore));
         }
         
         return calciatoreComboBox;

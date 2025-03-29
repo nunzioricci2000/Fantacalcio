@@ -168,21 +168,25 @@ public class Controller implements Utente, Amministratore {
         }
     }
 
-    public List<Calciatore> getCalciatori() throws SQLException {
-        return calciatoreDAO.readCalciatori(null);
+    public List<Calciatore> getCalciatori() {
+        try {
+            return calciatoreDAO.readCalciatori(null);
+        } catch (SQLException e) {
+            ui.showError("Errore durante il recupero dei calciatori: " + e.getMessage());
+            return new ArrayList<>();
+        }
     }
     
-    public Calciatore getCalciatore(int id) throws SQLException {
-        return calciatoreDAO.read(id);
+    public Calciatore getCalciatore(int id) {
+        try {
+            return calciatoreDAO.read(id);
+        } catch (SQLException e) {
+            ui.showError("Errore durante il recupero del calciatore: " + e.getMessage());
+            return null;
+        }
     }
 
-    /**
-     * Aggiunge una nuova militanza per un calciatore
-     * @param idCalciatore ID del calciatore a cui aggiungere la militanza
-     * @param militanza Oggetto militanza con il periodo
-     * @throws SQLException se si verifica un errore nel database
-     */
-    public void addMilitanza(int idCalciatore, Militanza militanza) throws SQLException {
+    public void addMilitanza(int idCalciatore, Militanza militanza) {
         if (!isAdmin) {
             ui.showError("Devi essere amministratore per aggiungere una militanza");
             return;
@@ -201,51 +205,31 @@ public class Controller implements Utente, Amministratore {
             ui.showMessage("Militanza aggiunta con successo");
         } catch (SQLException e) {
             ui.showError("Errore durante l'aggiunta della militanza: " + e.getMessage());
-            throw e;
         } catch (IllegalArgumentException e) {
             ui.showError("Dati non validi: " + e.getMessage());
-            throw e;
         }
     }
     
-    /**
-     * Aggiorna le skills di un calciatore
-     * @param idCalciatore ID del calciatore
-     * @param skills Nuova lista di skills
-     * @throws SQLException se si verifica un errore nel database
-     */
-    public void aggiornaSkills(int idCalciatore, List<Skill> skills) throws SQLException {
+    public void aggiornaSkills(int idCalciatore, List<Skill> skills) {
         if (!isAdmin) {
             ui.showError("Devi essere amministratore per modificare un calciatore");
             return;
         }
         
         try {
-            // Recupera il calciatore corrente
-            Calciatore calciatore = calciatoreDAO.read(idCalciatore);
-            
-            // Aggiorna direttamente le skills usando il DAO specifico
             skillsDAO.deleteSkillsCalciatore(idCalciatore);
             for (Skill skill : skills) {
                 skillsDAO.addSkillCalciatore(idCalciatore, skill);
             }
             
-            // Aggiorna la vista
             ui.showMessage("Skills aggiornate con successo");
             ui.displayDettaglioCalciatore(calciatoreDAO.read(idCalciatore));
         } catch (SQLException e) {
             ui.showError("Errore durante l'aggiornamento delle skills: " + e.getMessage());
-            throw e;
         }
     }
     
-    /**
-     * Aggiorna i ruoli di un calciatore
-     * @param idCalciatore ID del calciatore
-     * @param ruoli Nuova lista di ruoli
-     * @throws SQLException se si verifica un errore nel database
-     */
-    public void aggiornaRuoli(int idCalciatore, List<Ruolo> ruoli) throws SQLException {
+    public void aggiornaRuoli(int idCalciatore, List<Ruolo> ruoli) {
         if (!isAdmin) {
             ui.showError("Devi essere amministratore per modificare un calciatore");
             return;
@@ -268,7 +252,6 @@ public class Controller implements Utente, Amministratore {
             ui.displayDettaglioCalciatore(calciatoreDAO.read(idCalciatore));
         } catch (SQLException e) {
             ui.showError("Errore durante l'aggiornamento dei ruoli: " + e.getMessage());
-            throw e;
         }
     }
 }
