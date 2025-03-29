@@ -18,12 +18,23 @@ public class MainFrame extends JFrame implements UserInterface {
     private LoginView loginView;
     private LogoutView logoutView;
     private CalciatoriView calciatoriView;
+    
+    // Tab composite per le funzionalità di gestione
+    private JTabbedPane aggiungiTabPane;
+    private JTabbedPane modificaTabPane;
+    
+    // Views per le funzionalità di gestione
     private CalciatoriAggiungiView aggiungiCalciatoreView;
     private MilitanzeAggiungiView aggiungiMilitanzaView;
     private CalciatoriModificaView modificaCalciatoreView;
+    
     private JPanel statusBar;
     private JLabel statusLabel;
     private final int loginTabIndex = 0;
+    
+    // Indici per le tab di gestione
+    private final String aggiungiTabName = "Aggiungi";
+    private final String modificaTabName = "Modifica";
 
     public MainFrame() { }
 
@@ -42,18 +53,28 @@ public class MainFrame extends JFrame implements UserInterface {
         // Creazione dei componenti principali
         tabbedPane = new JTabbedPane();
         
-        // Creazione delle viste
+        // Creazione delle viste standard
         loginView = new LoginView(controller);
         logoutView = new LogoutView(controller);
         calciatoriView = new CalciatoriView(controller);
+        
+        // Creazione delle viste di gestione
         aggiungiCalciatoreView = new CalciatoriAggiungiView(controller);
         aggiungiMilitanzaView = new MilitanzeAggiungiView(controller);
         modificaCalciatoreView = new CalciatoriModificaView(controller);
         
-        // Aggiungi le viste alla tab
+        // Creazione dei tab panel per raggruppare le funzionalità
+        aggiungiTabPane = new JTabbedPane();
+        aggiungiTabPane.addTab("Calciatore", aggiungiCalciatoreView);
+        aggiungiTabPane.addTab("Militanza", aggiungiMilitanzaView);
+        
+        modificaTabPane = new JTabbedPane();
+        modificaTabPane.addTab("Calciatore", modificaCalciatoreView);
+        
+        // Aggiungi le viste standard alla tab
         tabbedPane.addTab("Login", loginView);
         tabbedPane.addTab("Calciatori", calciatoriView);
-        // Le schede admin verranno aggiunte solo quando l'utente accede come admin
+        // Le tab di gestione verranno aggiunte solo quando l'utente accede come admin
         
         // Status bar per i messaggi
         statusBar = new JPanel(new BorderLayout());
@@ -100,25 +121,31 @@ public class MainFrame extends JFrame implements UserInterface {
     
     @Override
     public void showAggiungiCalciatoreView() {
-        // Mostra la scheda "Aggiungi Calciatore" solo se è presente
-        if (tabbedPane.indexOfComponent(aggiungiCalciatoreView) != -1) {
-            tabbedPane.setSelectedComponent(aggiungiCalciatoreView);
+        // Verifica che la tab Aggiungi sia presente
+        int aggiungiIndex = tabbedPane.indexOfTab(aggiungiTabName);
+        if (aggiungiIndex != -1) {
+            tabbedPane.setSelectedIndex(aggiungiIndex);
+            aggiungiTabPane.setSelectedComponent(aggiungiCalciatoreView);
         }
     }
     
     @Override
     public void showAggiungiMilitanzaView() {
-        // Mostra la scheda "Aggiungi Militanza" solo se è presente
-        if (tabbedPane.indexOfComponent(aggiungiMilitanzaView) != -1) {
-            tabbedPane.setSelectedComponent(aggiungiMilitanzaView);
+        // Verifica che la tab Aggiungi sia presente
+        int aggiungiIndex = tabbedPane.indexOfTab(aggiungiTabName);
+        if (aggiungiIndex != -1) {
+            tabbedPane.setSelectedIndex(aggiungiIndex);
+            aggiungiTabPane.setSelectedComponent(aggiungiMilitanzaView);
         }
     }
 
     @Override
     public void showModificaCalciatoreView() {
-        // Mostra la scheda "Modifica Calciatore" solo se è presente
-        if (tabbedPane.indexOfComponent(modificaCalciatoreView) != -1) {
-            tabbedPane.setSelectedComponent(modificaCalciatoreView);
+        // Verifica che la tab Modifica sia presente
+        int modificaIndex = tabbedPane.indexOfTab(modificaTabName);
+        if (modificaIndex != -1) {
+            tabbedPane.setSelectedIndex(modificaIndex);
+            modificaTabPane.setSelectedComponent(modificaCalciatoreView);
         }
     }
 
@@ -139,17 +166,14 @@ public class MainFrame extends JFrame implements UserInterface {
             tabbedPane.setComponentAt(loginTabIndex, logoutView);
             tabbedPane.setTitleAt(loginTabIndex, "Logout");
             
-            // Aggiunge le schede admin se non sono già presenti
-            if (tabbedPane.indexOfComponent(aggiungiCalciatoreView) == -1) {
-                tabbedPane.addTab("Aggiungi Calciatore", aggiungiCalciatoreView);
+            // Aggiunge le tab di gestione se non sono già presenti
+            if (tabbedPane.indexOfTab(aggiungiTabName) == -1) {
+                tabbedPane.addTab(aggiungiTabName, aggiungiTabPane);
             }
             
-            if (tabbedPane.indexOfComponent(aggiungiMilitanzaView) == -1) {
-                tabbedPane.addTab("Aggiungi Militanza", aggiungiMilitanzaView);
-            }
-            
-            if (tabbedPane.indexOfComponent(modificaCalciatoreView) == -1) {
-                tabbedPane.addTab("Modifica Calciatore", modificaCalciatoreView);
+            if (tabbedPane.indexOfTab(modificaTabName) == -1) {
+                tabbedPane.addTab(modificaTabName, modificaTabPane);
+                
                 // Carica subito i calciatori nella vista di modifica
                 try {
                     modificaCalciatoreView.displayCalciatori(controller.getCalciatori());
@@ -162,17 +186,13 @@ public class MainFrame extends JFrame implements UserInterface {
             tabbedPane.setComponentAt(loginTabIndex, loginView);
             tabbedPane.setTitleAt(loginTabIndex, "Login");
             
-            // Rimuove le schede admin se presenti
-            if (tabbedPane.indexOfComponent(aggiungiCalciatoreView) != -1) {
-                tabbedPane.remove(aggiungiCalciatoreView);
+            // Rimuove le tab di gestione se presenti
+            if (tabbedPane.indexOfTab(aggiungiTabName) != -1) {
+                tabbedPane.remove(tabbedPane.indexOfTab(aggiungiTabName));
             }
             
-            if (tabbedPane.indexOfComponent(aggiungiMilitanzaView) != -1) {
-                tabbedPane.remove(aggiungiMilitanzaView);
-            }
-            
-            if (tabbedPane.indexOfComponent(modificaCalciatoreView) != -1) {
-                tabbedPane.remove(modificaCalciatoreView);
+            if (tabbedPane.indexOfTab(modificaTabName) != -1) {
+                tabbedPane.remove(tabbedPane.indexOfTab(modificaTabName));
             }
         }
     }
