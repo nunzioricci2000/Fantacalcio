@@ -207,4 +207,68 @@ public class Controller implements Utente, Amministratore {
             throw e;
         }
     }
+    
+    /**
+     * Aggiorna le skills di un calciatore
+     * @param idCalciatore ID del calciatore
+     * @param skills Nuova lista di skills
+     * @throws SQLException se si verifica un errore nel database
+     */
+    public void aggiornaSkills(int idCalciatore, List<Skill> skills) throws SQLException {
+        if (!isAdmin) {
+            ui.showError("Devi essere amministratore per modificare un calciatore");
+            return;
+        }
+        
+        try {
+            // Recupera il calciatore corrente
+            Calciatore calciatore = calciatoreDAO.read(idCalciatore);
+            
+            // Aggiorna direttamente le skills usando il DAO specifico
+            skillsDAO.deleteSkillsCalciatore(idCalciatore);
+            for (Skill skill : skills) {
+                skillsDAO.addSkillCalciatore(idCalciatore, skill);
+            }
+            
+            // Aggiorna la vista
+            ui.showMessage("Skills aggiornate con successo");
+            ui.displayDettaglioCalciatore(calciatoreDAO.read(idCalciatore));
+        } catch (SQLException e) {
+            ui.showError("Errore durante l'aggiornamento delle skills: " + e.getMessage());
+            throw e;
+        }
+    }
+    
+    /**
+     * Aggiorna i ruoli di un calciatore
+     * @param idCalciatore ID del calciatore
+     * @param ruoli Nuova lista di ruoli
+     * @throws SQLException se si verifica un errore nel database
+     */
+    public void aggiornaRuoli(int idCalciatore, List<Ruolo> ruoli) throws SQLException {
+        if (!isAdmin) {
+            ui.showError("Devi essere amministratore per modificare un calciatore");
+            return;
+        }
+        
+        if (ruoli.isEmpty()) {
+            ui.showError("Un calciatore deve avere almeno un ruolo");
+            return;
+        }
+        
+        try {
+            // Aggiorna direttamente i ruoli usando il DAO specifico
+            ruoliDAO.deleteRuoliCalciatore(idCalciatore);
+            for (Ruolo ruolo : ruoli) {
+                ruoliDAO.addRuoloCalciatore(idCalciatore, ruolo);
+            }
+            
+            // Aggiorna la vista
+            ui.showMessage("Ruoli aggiornati con successo");
+            ui.displayDettaglioCalciatore(calciatoreDAO.read(idCalciatore));
+        } catch (SQLException e) {
+            ui.showError("Errore durante l'aggiornamento dei ruoli: " + e.getMessage());
+            throw e;
+        }
+    }
 }
