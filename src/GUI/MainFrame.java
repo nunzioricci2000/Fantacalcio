@@ -5,6 +5,7 @@ import GUI.Calciatori.CalciatoriAggiungiView;
 import GUI.Calciatori.CalciatoriModificaView;
 import GUI.Calciatori.CalciatoriView;
 import GUI.Calciatori.MilitanzeAggiungiView;
+import GUI.Calciatori.TrofeiAggiungiView;
 import Model.Calciatore;
 import UI.UserInterface;
 
@@ -26,6 +27,7 @@ public class MainFrame extends JFrame implements UserInterface {
     // Views per le funzionalità di gestione
     private CalciatoriAggiungiView aggiungiCalciatoreView;
     private MilitanzeAggiungiView aggiungiMilitanzaView;
+    private TrofeiAggiungiView aggiungiTrofeoView;
     private CalciatoriModificaView modificaCalciatoreView;
     
     private JPanel statusBar;
@@ -61,12 +63,14 @@ public class MainFrame extends JFrame implements UserInterface {
         // Creazione delle viste di gestione
         aggiungiCalciatoreView = new CalciatoriAggiungiView(controller);
         aggiungiMilitanzaView = new MilitanzeAggiungiView(controller);
+        aggiungiTrofeoView = new TrofeiAggiungiView(controller);
         modificaCalciatoreView = new CalciatoriModificaView(controller);
         
         // Creazione dei tab panel per raggruppare le funzionalità
         aggiungiTabPane = new JTabbedPane();
         aggiungiTabPane.addTab("Calciatore", aggiungiCalciatoreView);
         aggiungiTabPane.addTab("Militanza", aggiungiMilitanzaView);
+        aggiungiTabPane.addTab("Trofeo", aggiungiTrofeoView);
         
         modificaTabPane = new JTabbedPane();
         modificaTabPane.addTab("Calciatore", modificaCalciatoreView);
@@ -136,6 +140,16 @@ public class MainFrame extends JFrame implements UserInterface {
         if (aggiungiIndex != -1) {
             tabbedPane.setSelectedIndex(aggiungiIndex);
             aggiungiTabPane.setSelectedComponent(aggiungiMilitanzaView);
+        }
+    }
+    
+    @Override
+    public void showAggiungiTrofeoView() {
+        // Verifica che la tab Aggiungi sia presente
+        int aggiungiIndex = tabbedPane.indexOfTab(aggiungiTabName);
+        if (aggiungiIndex != -1) {
+            tabbedPane.setSelectedIndex(aggiungiIndex);
+            aggiungiTabPane.setSelectedComponent(aggiungiTrofeoView);
         }
     }
 

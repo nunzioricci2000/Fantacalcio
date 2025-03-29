@@ -254,4 +254,20 @@ public class Controller implements Utente, Amministratore {
             ui.showError("Errore durante l'aggiornamento dei ruoli: " + e.getMessage());
         }
     }
+    
+    public void addTrofeo(Trofeo trofeo) {
+        if (!isAdmin) {
+            ui.showError("Devi essere amministratore per aggiungere un trofeo");
+            return;
+        }
+        
+        try {
+            trofeoDAO.create(trofeo);
+            ui.showMessage("Trofeo aggiunto con successo");
+        } catch (SQLException e) {
+            ui.showError("Errore durante l'aggiunta del trofeo: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            ui.showError("Dati non validi: " + e.getMessage());
+        }
+    }
 }

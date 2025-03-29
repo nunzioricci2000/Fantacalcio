@@ -15,6 +15,7 @@ public interface UserInterface {
     void showCalciatoriView();
     void showAggiungiCalciatoreView();
     void showAggiungiMilitanzaView();
+    void showAggiungiTrofeoView();
     void showModificaCalciatoreView();
     
     void displayCalciatori(List<Calciatore> calciatori);
