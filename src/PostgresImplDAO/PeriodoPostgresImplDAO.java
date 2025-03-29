@@ -41,7 +41,7 @@ public class PeriodoPostgresImplDAO implements PeriodoDAO {
     @Override
     public void delete(Periodo periodo, int idCalciatore, Squadra squadra) throws SQLException {
         Statement statement = connection.createStatement();
-        statement.executeQuery(
+        statement.executeUpdate(
                 "DELETE FROM ruoli WHERE id_calciatore = " + idCalciatore +
                         " AND squadra = '" + squadra.nome() +
                         "' AND nazionalita = '" + squadra.nazionalita() +
@@ -53,7 +53,7 @@ public class PeriodoPostgresImplDAO implements PeriodoDAO {
     @Override
     public Periodo create(Periodo periodo, int idCalciatore, Squadra squadra) throws SQLException {
         Statement statement = connection.createStatement();
-        statement.executeQuery(
+        statement.executeUpdate(
                 "INSERT INTO periodo(id_calciatore, nome_squadra, nazionalitÀ, data_inizio, data_fine) VALUES ("
                         + idCalciatore + ", '" + squadra.nome() + "', '"
                         + squadra.nazionalita() + "', '" + periodo.dataInizio() + "', '" + periodo.dataFine() + "')");

@@ -45,7 +45,6 @@ public class Controller implements Utente, Amministratore {
         if (ADMIN_PASSWORD.equals(password)) {
             isAdmin = true;
             ui.notifyAdminMode(true);
-            ui.showAdminView();
             ui.showMessage("Accesso come amministratore effettuato");
         } else {
             ui.showError("Password errata");

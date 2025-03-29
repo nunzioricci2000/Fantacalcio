@@ -56,7 +56,7 @@ public class MilitanzaPostgresImplDAO implements MilitanzaDAO {
     @Override
     public void delete(int idCalciatore, Squadra squadra) throws SQLException {
         Statement statement = connection.createStatement();
-        statement.executeQuery(
+        statement.executeUpdate(
                 "DELETE FROM militanza WHERE id_calciatore = " + idCalciatore +
                         " AND nome_squadra = '" + squadra.nome() +
                         "' AND nazionalitÀ_squadra = '" + squadra.nazionalita() + "'");
@@ -70,7 +70,7 @@ public class MilitanzaPostgresImplDAO implements MilitanzaDAO {
         if (militanza instanceof MilitanzaPortiere) {
             goalSubiti = String.valueOf(((MilitanzaPortiere) militanza).getGoalSubiti());
         }
-        statement.executeQuery(
+        statement.executeUpdate(
                 "INSERT INTO militanza(id_calciatore, nome_squadra, nazionalitÀ_squadra, partite_giocate, goal_segnati, goal_subiti) VALUES ("
                         + idCalciatore + ", '" + militanza.getSquadra().nome() + "', '"
                         + militanza.getSquadra().nazionalita() + "', " + militanza.getPartiteGiocate()

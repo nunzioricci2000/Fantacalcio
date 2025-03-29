@@ -1,6 +1,7 @@
 package GUI;
 
 import Control.Controller;
+import GUI.Calciatori.CalciatoriAggiungiView;
 import GUI.Calciatori.CalciatoriView;
 import Model.Calciatore;
 import UI.UserInterface;
@@ -15,11 +16,9 @@ public class MainFrame extends JFrame implements UserInterface {
     private LoginView loginView;
     private LogoutView logoutView;
     private CalciatoriView calciatoriView;
-    private AdminView adminView;
+    private CalciatoriAggiungiView aggiungiCalciatoreView;
     private JPanel statusBar;
     private JLabel statusLabel;
-    
-    // Indice della scheda di login/logout
     private final int loginTabIndex = 0;
 
     public MainFrame() { }
@@ -43,10 +42,12 @@ public class MainFrame extends JFrame implements UserInterface {
         loginView = new LoginView(controller);
         logoutView = new LogoutView(controller);
         calciatoriView = new CalciatoriView(controller);
+        aggiungiCalciatoreView = new CalciatoriAggiungiView(controller);
         
         // Aggiungi le viste alla tab
         tabbedPane.addTab("Login", loginView);
         tabbedPane.addTab("Calciatori", calciatoriView);
+        // La scheda "Aggiungi Calciatore" verrà aggiunta solo quando l'utente accede come admin
         
         // Status bar per i messaggi
         statusBar = new JPanel(new BorderLayout());
@@ -90,16 +91,13 @@ public class MainFrame extends JFrame implements UserInterface {
         tabbedPane.setSelectedComponent(calciatoriView);
         controller.vediElencoCalciatori();
     }
-
+    
     @Override
-    public void showAdminView() {
-        // Crea la vista admin solo quando necessario (lazy initialization)
-        if (adminView == null) {
-            adminView = new AdminView(controller);
-            tabbedPane.addTab("Amministrazione", adminView);
+    public void showAggiungiCalciatoreView() {
+        // Mostra la scheda "Aggiungi Calciatore" solo se è presente
+        if (tabbedPane.indexOfComponent(aggiungiCalciatoreView) != -1) {
+            tabbedPane.setSelectedComponent(aggiungiCalciatoreView);
         }
-        
-        tabbedPane.setSelectedComponent(adminView);
     }
 
     @Override
@@ -119,21 +117,19 @@ public class MainFrame extends JFrame implements UserInterface {
             tabbedPane.setComponentAt(loginTabIndex, logoutView);
             tabbedPane.setTitleAt(loginTabIndex, "Logout");
             
-            // Crea e mostra la vista admin
-            if (adminView == null) {
-                adminView = new AdminView(controller);
-                tabbedPane.addTab("Amministrazione", adminView);
+            // Aggiunge la scheda "Aggiungi Calciatore" se non è già presente
+            if (tabbedPane.indexOfComponent(aggiungiCalciatoreView) == -1) {
+                tabbedPane.addTab("Aggiungi Calciatore", aggiungiCalciatoreView);
             }
         } else {
-            // Rimuove la tab di amministrazione
-            if (adminView != null) {
-                tabbedPane.remove(adminView);
-                adminView = null;
-            }
-            
             // Ripristina la tab di login
             tabbedPane.setComponentAt(loginTabIndex, loginView);
             tabbedPane.setTitleAt(loginTabIndex, "Login");
+            
+            // Rimuove la scheda "Aggiungi Calciatore" se presente
+            if (tabbedPane.indexOfComponent(aggiungiCalciatoreView) != -1) {
+                tabbedPane.remove(aggiungiCalciatoreView);
+            }
         }
     }
 

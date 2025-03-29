@@ -152,38 +152,52 @@ public class CalciatorePostgresImplDAO implements CalciatoreDAO {
     @Override
     public Calciatore create(Calciatore calciatore) throws SQLException {
         String query = "INSERT INTO calciatore (nome, cognome, data_di_nascita, data_di_ritiro, piede) " +
-                "VALUES (?, ?, ?, ?, ?) RETURNING id";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+                "VALUES (?, ?, ?, ?, ?::T_PIEDE)";
+        
+        // Aggiungi Statement.RETURN_GENERATED_KEYS per ottenere l'ID generato
+        try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, calciatore.getNome());
             stmt.setString(2, calciatore.getCognome());
             stmt.setDate(3, new java.sql.Date(calciatore.getDataDiNascita().getTime()));
+            
             if (calciatore.getDataDiRitiro() != null) {
                 stmt.setDate(4, new java.sql.Date(calciatore.getDataDiRitiro().getTime()));
             } else {
                 stmt.setNull(4, Types.DATE);
             }
+            
             stmt.setString(5, calciatore.getPiede().name());
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                int id = rs.getInt(1);
-                for (Ruolo ruolo : calciatore.getRuoli()) {
-                    ruoliDAO.create(ruolo, id);
+            
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Errore nella creazione del calciatore, nessuna riga inserita");
+            }
+            
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    int id = rs.getInt(1);
+                    System.out.println("ID generato: " + id);
+                    for (Ruolo ruolo : calciatore.getRuoli()) {
+                        ruoliDAO.create(ruolo, id);
+                    }
+                    for (Skill skill : calciatore.getSkills()) {
+                        skillsDAO.create(skill, id);
+                    }
+                    return new Calciatore(
+                        id, 
+                        calciatore.getNome(), 
+                        calciatore.getCognome(),
+                        calciatore.getDataDiNascita(), 
+                        calciatore.getDataDiRitiro(),
+                        calciatore.getPiede(), 
+                        calciatore.getRuoli(), 
+                        calciatore.getSkills(),
+                        calciatore.getTrofei(), 
+                        calciatore.getCarriera()
+                    );
+                } else {
+                    throw new SQLException("Errore nella creazione del calciatore, nessun ID restituito");
                 }
-                for (Skill skill : calciatore.getSkills()) {
-                    skillsDAO.create(skill, id);
-                }
-                for (Trofeo trofeo : calciatore.getTrofei()) {
-                    trofeoDAO.create(trofeo);
-                }
-                for (Militanza militanza : calciatore.getCarriera()) {
-                    militanzaDAO.create(id, militanza);
-                }
-                return new Calciatore(id, calciatore.getNome(), calciatore.getCognome(),
-                        calciatore.getDataDiNascita(), calciatore.getDataDiRitiro(),
-                        calciatore.getPiede(), calciatore.getRuoli(), calciatore.getSkills(),
-                        calciatore.getTrofei(), calciatore.getCarriera());
-            } else {
-                throw new SQLException("Errore nella creazione del calciatore, nessun ID restituito");
             }
         }
     }

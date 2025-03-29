@@ -35,7 +35,7 @@ public class RuoliPostgresImplDAO implements RuoliDAO {
     @Override
     public void delete(Ruolo ruolo, int idCalciatore) throws SQLException {
         Statement statement = connection.createStatement();
-        statement.executeQuery(
+        statement.executeUpdate(
                 "DELETE FROM ruoli WHERE ruolo = '" + ruolo.name() +
                         "' AND id_calciatore = " + idCalciatore);
         statement.close();
@@ -44,8 +44,8 @@ public class RuoliPostgresImplDAO implements RuoliDAO {
     @Override
     public void create(Ruolo ruolo, int idCalciatore) throws SQLException {
         Statement statement = connection.createStatement();
-        statement.executeQuery(
-                "INSERT INTO ruolo(id_calciatore, ruolo) VALUES ("
+        statement.executeUpdate(
+                "INSERT INTO ruoli(id_calciatore, ruolo) VALUES ("
                         + idCalciatore + ", '" + ruolo.name() + "')");
         statement.close();
     }
