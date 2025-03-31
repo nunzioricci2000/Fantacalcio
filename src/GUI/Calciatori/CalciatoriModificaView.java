@@ -447,7 +447,6 @@ public class CalciatoriModificaView extends JPanel {
         JPanel buttonPanel = new JPanel();
         JButton eliminaButton = new JButton("Elimina calciatore");
         eliminaButton.setBackground(new Color(217, 83, 79)); // Colore rosso
-        eliminaButton.setForeground(Color.WHITE);
         
         eliminaButton.addActionListener(_ -> {
             // Mostra dialogo di conferma

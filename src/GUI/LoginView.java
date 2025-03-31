@@ -70,15 +70,6 @@ public class LoginView extends JPanel {
             passwordField.setText(""); // Pulisci il campo password dopo il tentativo
         });
         
-        // Aggiunta di un bottone per accedere automaticamente alla vista dei calciatori
-        JButton viewCalciatoriButton = new JButton("Visualizza Calciatori");
-        gbc.gridy = 4;
-        loginPanel.add(viewCalciatoriButton, gbc);
-        
-        viewCalciatoriButton.addActionListener(_ -> {
-            controller.vediElencoCalciatori();
-        });
-        
         add(loginPanel, BorderLayout.CENTER);
     }
 }
