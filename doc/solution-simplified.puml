@@ -1,0 +1,15 @@
+@startuml Solution
+title Modello del Dominio della Soluzione
+
+package Control {}
+package GUI {}
+package PostgresImplDAO {}
+package Database {}
+package Model {}
+
+GUI --r0)-- Control: UI
+PostgresImplDAO --l0)-- Control: DAO
+PostgresImplDAO ..> Database: <<use>>
+Control ..> Model: <<use>>
+
+@enduml

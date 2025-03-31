@@ -13,7 +13,6 @@ public class CalciatoriModificaView extends JPanel {
     private final Controller controller;
     private CalciatoriTable calciatoriTable;
     private JPanel modificaPanel;
-    private CalciatoriFiltriPanel filtriPanel;
     
     // Calciatore correntemente selezionato
     private Calciatore calciatoreSelezionato;
@@ -23,7 +22,6 @@ public class CalciatoriModificaView extends JPanel {
         setLayout(new BorderLayout());
         
         // Inizializzazione dei componenti
-        filtriPanel = new CalciatoriFiltriPanel(controller);
         calciatoriTable = new CalciatoriTable(controller);
         modificaPanel = new JPanel();
         modificaPanel.setBorder(BorderFactory.createTitledBorder("Seleziona un calciatore per modificarlo"));
@@ -35,7 +33,6 @@ public class CalciatoriModificaView extends JPanel {
                 new JScrollPane(modificaPanel));
         splitPane.setResizeWeight(0.4);
         
-        add(filtriPanel, BorderLayout.NORTH);
         add(splitPane, BorderLayout.CENTER);
         
         // Override del comportamento della tabella per mostrare il form di modifica
@@ -75,6 +72,9 @@ public class CalciatoriModificaView extends JPanel {
         
         // Tab per militanze
         tabbedPane.addTab("Militanze", creaMilitanzePanel(calciatore));
+        
+        // Tab per eliminazione
+        tabbedPane.addTab("Elimina", creaEliminaPanel(calciatore));
         
         // Aggiunge il TabbedPane al panel di modifica
         modificaPanel.add(tabbedPane, BorderLayout.CENTER);
@@ -410,6 +410,85 @@ public class CalciatoriModificaView extends JPanel {
         JLabel notaLabel = new JLabel("Nota: Per aggiungere nuove militanze, utilizza la scheda 'Aggiungi Militanza'");
         notaLabel.setFont(new Font("Arial", Font.ITALIC, 12));
         panel.add(notaLabel, BorderLayout.SOUTH);
+        
+        return panel;
+    }
+    
+    private JPanel creaEliminaPanel(Calciatore calciatore) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        // Pannello centrale con avviso
+        JPanel avvisoPanel = new JPanel();
+        avvisoPanel.setLayout(new BoxLayout(avvisoPanel, BoxLayout.Y_AXIS));
+        
+        JLabel avvisoLabel = new JLabel("Eliminazione calciatore");
+        avvisoLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        avvisoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        JLabel calciatoreDaEliminareLabel = new JLabel(calciatore.getNome() + " " + calciatore.getCognome());
+        calciatoreDaEliminareLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        calciatoreDaEliminareLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        JLabel avvisoDettaglioLabel = new JLabel("<html><center>Attenzione: questa operazione eliminerà definitivamente " +
+                "il calciatore dal database.<br/>L'operazione non è reversibile.</center></html>");
+        avvisoDettaglioLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        avvisoDettaglioLabel.setForeground(Color.RED);
+        
+        avvisoPanel.add(Box.createVerticalGlue());
+        avvisoPanel.add(avvisoLabel);
+        avvisoPanel.add(Box.createVerticalStrut(10));
+        avvisoPanel.add(calciatoreDaEliminareLabel);
+        avvisoPanel.add(Box.createVerticalStrut(20));
+        avvisoPanel.add(avvisoDettaglioLabel);
+        avvisoPanel.add(Box.createVerticalGlue());
+        
+        // Pannello pulsanti
+        JPanel buttonPanel = new JPanel();
+        JButton eliminaButton = new JButton("Elimina calciatore");
+        eliminaButton.setBackground(new Color(217, 83, 79)); // Colore rosso
+        eliminaButton.setForeground(Color.WHITE);
+        
+        eliminaButton.addActionListener(_ -> {
+            // Mostra dialogo di conferma
+            int conferma = JOptionPane.showConfirmDialog(
+                panel,
+                "Sei sicuro di voler eliminare " + calciatore.getNome() + " " + calciatore.getCognome() + "?",
+                "Conferma eliminazione",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+            );
+            
+            // Se confermato, procede con l'eliminazione
+            if (conferma == JOptionPane.YES_OPTION) {
+                try {
+                    controller.eliminaCalciatore(calciatore);
+                    
+                    // Aggiorna la vista svuotando il pannello di modifica
+                    modificaPanel.removeAll();
+                    modificaPanel.setBorder(BorderFactory.createTitledBorder("Seleziona un calciatore per modificarlo"));
+                    modificaPanel.revalidate();
+                    modificaPanel.repaint();
+                    
+                    // Deseleziona la riga nella tabella
+                    calciatoriTable.clearSelection();
+                    displayCalciatori(controller.getCalciatori());
+                    
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(
+                        panel,
+                        "Errore durante l'eliminazione del calciatore: " + ex.getMessage(),
+                        "Errore",
+                        JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            }
+        });
+        
+        buttonPanel.add(eliminaButton);
+        
+        panel.add(avvisoPanel, BorderLayout.CENTER);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
         
         return panel;
     }

@@ -1,63 +1,207 @@
-@startuml
+@startuml Solution
 title Modello del Dominio della Soluzione
 
 package Control {
     class Controller {
-        - accessoAmministratore: boolean
+        - ui: UserInterface
+        - calciatoreDAO: CalciatoreDAO
+        - skillsDAO: SkillsDAO
+        - ruoliDAO: RuoliDAO
+        - squadraDAO: SquadraDAO
+        - militanzaDAO: MilitanzaDAO
+        - trofeoDAO: TrofeoDAO
+        - isAdmin: boolean
+        - ADMIN_PASSWORD: String
+        ---
+        + Controller(UserInterface, CalciatoreDAO, SkillsDAO, RuoliDAO, SquadraDAO, MilitanzaDAO, TrofeoDAO)
+        + startApplication(): void
+        + getSquadre(): List<Squadra>
+        + getCalciatori(): List<Calciatore>
+        + getCalciatore(int): Calciatore
+        + addMilitanza(int, Militanza): void
+        + aggiornaSkills(int, List<Skill>): void
+        + aggiornaRuoli(int, List<Ruolo>): void
+        + addTrofeo(Trofeo): void
     }
+}
 
-    class utente {
-
+package UI {
+    interface UserInterface {
+        ---
+        + initialize(): void
+        + showMessage(String): void
+        + showError(String): void
+        + showLoginView(): void
+        + showCalciatoriView(): void
+        + showAggiungiCalciatoreView(): void
+        + showAggiungiMilitanzaView(): void
+        + showAggiungiTrofeoView(): void
+        + showModificaCalciatoreView(): void
+        + displayCalciatori(List<Calciatore>): void
+        + displayDettaglioCalciatore(Calciatore): void
+        + notifyAdminMode(boolean): void
+        + shutdown(): void
+        + setController(Controller): void
     }
-
-    class amministratore {
-
-    }
-
-    Controller +-- utente
-    Controller +-- amministratore
-    utente <|-r- amministratore
 }
 
 package GUI {
-    class MainView {
-        + MainView(Controller)
-        + select(MainView.Tab)
-        + set(MainView.Visualization)
-        + getAccediView(): AccediView
-        + getListaCalciatoriView(): ListaCalciatoriView
-        + getAggiungiView(): AggiungiView
-        + displayError(String)
+    class MainFrame {
+        - controller: Controller
+        - tabbedPane: JTabbedPane
+        - loginView: LoginView
+        - logoutView: LogoutView
+        - calciatoriView: CalciatoriView
+        - aggiungiTabPane: JTabbedPane
+        - modificaTabPane: JTabbedPane
+        - statusBar: JPanel
+        - statusLabel: JLabel
+        ---
+        + MainFrame()
+        + setController(Controller): void
+        + initialize(): void
+        + showMessage(String): void
+        + showError(String): void
     }
 
-    class AccediView {
-        + AccediView(Controller)
+    class LoginView {
+        - controller: Controller
+        - passwordField: JTextField
+        ---
+        + LoginView(Controller)
+        - initComponents(): void
     }
 
-    class ProfiloView {
-        + ProfiloView(Controller)
+    class LogoutView {
+        - controller: Controller
+        ---
+        + LogoutView(Controller)
+        - initComponents(): void
     }
 
-    class ListaCalciatoriView {
-        + ListaCalciatoriView(Controller)
-        + setList(List<Calciatore>)
-        + displayError(String)
-        + showDetails(Calciatore)
-        + hideDetails()
+    package GUI.Calciatori {
+        class CalciatoriView {
+            - calciatoriTable: CalciatoriTable
+            - dettaglioPanel: CalciatoriDettaglioPanel
+            - filtriPanel: CalciatoriFiltriPanel
+            ---
+            + CalciatoriView(Controller)
+            + displayCalciatori(List<Calciatore>): void
+            + displayDettaglioCalciatore(Calciatore): void
+        }
+
+        class CalciatoriAggiungiView {
+            - controller: Controller
+            - nomeField: JTextField
+            - cognomeField: JTextField
+            - dataNascitaSpinner: JSpinner
+            - dataRitiroSpinner: JSpinner
+            - ritiratoCheckBox: JCheckBox
+            - piedeComboBox: JComboBox<Piede>
+            - ruoliList: JList<Ruolo>
+            - skillsList: JList<Skill>
+            ---
+            + CalciatoriAggiungiView(Controller)
+            - initComponents(): void
+            - salvaCalciatore(): void
+        }
+        
+        class MilitanzeAggiungiView {
+            - controller: Controller
+            - calciatoreComboBox: JComboBox<CalciatoreComboItem>
+            - squadraComboBox: JComboBox<Squadra>
+            - partiteGiocateSpinner: JSpinner
+            - goalSegnatiSpinner: JSpinner
+            - portiereMilitanzaCheckBox: JCheckBox
+            - goalSubitiSpinner: JSpinner
+            - dataInizioSpinner: JSpinner
+            - dataFineSpinner: JSpinner
+            ---
+            + MilitanzeAggiungiView(Controller)
+            - initComponents(): void
+            - salvaMilitanza(): void
+            + {inner} CalciatoreComboItem
+        }
+        
+        class TrofeiAggiungiView {
+            - controller: Controller
+            - calciatoreComboBox: JComboBox<CalciatoreComboItem>
+            - nomeField: JTextField
+            - dataSpinner: JSpinner
+            - squadraComboBox: JComboBox<Squadra>
+            - tipologiaPane: JTabbedPane
+            ---
+            + TrofeiAggiungiView(Controller)
+            - initComponents(): void
+            - salvaTrofeo(): void
+            + {inner} CalciatoreComboItem
+        }
+        
+        class CalciatoriModificaView {
+            - controller: Controller
+            - calciatoriTable: CalciatoriTable
+            - modificaPanel: JPanel
+            - calciatoreSelezionato: Calciatore
+            ---
+            + CalciatoriModificaView(Controller)
+            + displayCalciatori(List<Calciatore>): void
+            - mostraTabModifica(Calciatore): void
+            - creaInfoBasePanel(Calciatore): JPanel
+            - creaSkillsPanel(Calciatore): JPanel
+            - creaRuoliPanel(Calciatore): JPanel
+            - creaMilitanzePanel(Calciatore): JPanel
+            - creaEliminaPanel(Calciatore): JPanel
+        }
+
+        class CalciatoriDettaglioPanel {
+            ---
+            + CalciatoriDettaglioPanel(Controller)
+            + displayDettaglioCalciatore(Calciatore): void
+            - createInfoPanel(): JPanel
+            - createCarrieraPanel(Calciatore): JPanel
+            - createTrofeiPanel(Calciatore): JPanel
+        }
+
+        class CalciatoriFiltriPanel {
+            - controller: Controller
+            - nomeField: JTextField
+            - ruoloCombo: JComboBox<String>
+            - piedeCombo: JComboBox<Piede>
+            - squadraCombo: JComboBox<Squadra>
+            ---
+            + CalciatoriFiltriPanel(Controller)
+            - applicaFiltri(): void
+            - resetFiltri(): void
+        }
+
+        class CalciatoriTable {
+            - controller: Controller
+            ---
+            + CalciatoriTable(Controller)
+            + displayCalciatori(List<Calciatore>): void
+        }
     }
 
-    class AggiungiView {
-        + AggiungiView(Controller)
-        + select(AggiungiView.Tab)
-        + set(MainView.Visualization)
-        + getTabView(MainView.Tab): JFrame
-    }
+    ' Relationships within GUI
+    MainFrame *-- LoginView
+    MainFrame *-- LogoutView
+    MainFrame *-- GUI.Calciatori.CalciatoriView
+    MainFrame *-- GUI.Calciatori.CalciatoriAggiungiView
+    MainFrame *-- GUI.Calciatori.MilitanzeAggiungiView
+    MainFrame *-- GUI.Calciatori.TrofeiAggiungiView
+    MainFrame *-- GUI.Calciatori.CalciatoriModificaView
+
+    GUI.Calciatori.CalciatoriView *-- GUI.Calciatori.CalciatoriTable
+    GUI.Calciatori.CalciatoriView *-- GUI.Calciatori.CalciatoriDettaglioPanel
+    GUI.Calciatori.CalciatoriView *-- GUI.Calciatori.CalciatoriFiltriPanel
+    
+    GUI.Calciatori.CalciatoriModificaView *-- GUI.Calciatori.CalciatoriTable
 }
 
 package DAO {
     interface CalciatoreDAO {
         ---
-        + readCalciatori(Filter): List<Calciatore>
+        + readCalciatori(Filtro): List<Calciatore>
         + read(int): Calciatore
         + update(Calciatore): Calciatore
         + delete(Calciatore): void
@@ -67,35 +211,36 @@ package DAO {
     interface SkillsDAO {
         ---
         + readSkillsDi(int): List<Skill>
-        + delete(Skill, Calciatore): void
-        + create(Skill, Calciatore): void
+        + delete(Skill, int): void
+        + create(Skill, int): void
+        + addSkillCalciatore(int, Skill): void
+        + deleteSkillsCalciatore(int): void
     }
 
     interface RuoliDAO {
         ---
         + readRuoliDi(int): List<Ruolo>
-        + delete(Ruolo, Calciatore): void
-        + create(Ruolo, Calciatore): void
+        + delete(Ruolo, int): void
+        + create(Ruolo, int): void
+        + addRuoloCalciatore(int, Ruolo): void
+        + deleteRuoliCalciatore(int): void
     }
 
     interface SquadraDAO {
         ---
-        + readSquadre(): List<Squadre>
-        + update(Squadra, Squadra): Squadra
-        + delete(Squadra): void
-        + create(Squadra): Squadra
+        + readSquadre(): List<Squadra>
     }
 
     interface MilitanzaDAO {
         ---
-        + readMilitanzeDi(Calciatore): List<Militanza>
-        + update(Militanza): Militanza
-        + delete(Militanza): void
-        + create(Militanza): Militanza
+        + getCarrieraDi(int): List<Militanza>
+        + delete(int, Squadra): void
+        + create(int, Militanza): Militanza
     }
 
     interface PeriodoDAO {
-        + readPeriodiDi(Militanza): List<Militanza>
+        ---
+        + readPeriodiDi(Militanza): List<Periodo>
         + update(Periodo): Periodo
         + delete(Periodo): void
         + create(Periodo): Periodo
@@ -103,17 +248,11 @@ package DAO {
 
     interface TrofeoDAO {
         ---
-        + readTrofeiDi(Calciatore): List<TrofeoIndividuale>
-        + readTrofeiDi(Squadra): List<TrofeoDiSquadra>
+        + readTrofeiDi(int): List<Trofeo>
         + delete(Trofeo): void
-        + create(Trofeo): Trofeo
+        + create(Trofeo): void
     }
 }
-
-note left of DAO.SquadraDAO: \
-Il metodo ""update()"" prende come primo\n\
-argomento la squadra che si vuole sostituire e\n\
-come secondo argomento la nuova squadra
 
 package PostgresImplDAO {
     class CalciatorePostgresImplDAO implements DAO.CalciatoreDAO
@@ -132,7 +271,13 @@ package Database {
     }
 }
 
-PostgresImplDAO ..> Database: <<use>>
+PostgresImplDAO.MilitanzaPostgresImplDAO ..> Database.DatabaseConnection: <<use>>
+PostgresImplDAO.PeriodoPostgresImplDAO ..> Database.DatabaseConnection: <<use>>
+PostgresImplDAO.CalciatorePostgresImplDAO ..> Database.DatabaseConnection: <<use>>
+PostgresImplDAO.SkillsPostgresImplDAO ..> Database.DatabaseConnection: <<use>>
+PostgresImplDAO.RuoliPostgresImplDAO ..> Database.DatabaseConnection: <<use>>
+PostgresImplDAO.SquadraPostgresImplDAO ..> Database.DatabaseConnection: <<use>>
+PostgresImplDAO.TrofeoPostgresImplDAO ..> Database.DatabaseConnection: <<use>>
 
 package Model {
     enum Ruolo {
@@ -143,7 +288,7 @@ package Model {
     }
 
     enum Piede {
-        SINISTO
+        SINISTRO
         DESTRO
         AMBIDESTRO
     }
@@ -171,54 +316,70 @@ package Model {
         - nome: String
         - cognome: String
         - dataDiNascita: Date
-        - dataDiRitiro: Date?
+        - dataDiRitiro: Date
         - piede: Piede
         - ruoli: ArrayList<Ruolo>
         - skills: ArrayList<Skill>
+        - trofei: ArrayList<Trofeo>
+        - carriera: ArrayList<Militanza>
         ---
+        + getId(): int
         + getNome(): String
+        + setNome(String): void
         + getCognome(): String
+        + setCognome(String): void
         + getDataDiNascita(): Date
-        + getDataDiRitiro(): Optional<Date>
-        + getCarriera(): ArrayList<Militanza>
-        + getTrofei(): ArrayList<Trofeo>
-        + getEtà(): int
-        + getSquadraCorrente(): Optional<Squadra>
-        + getSkills(): ArrayList<Skill>
+        + setDataDiNascita(Date): void
+        + getDataDiRitiro(): Date
+        + setDataDiRitiro(Date): void
         + getPiede(): Piede
+        + setPiede(Piede): void
         + getRuoli(): ArrayList<Ruolo>
-        + getPartiteGiocate():
+        + setRuoli(List<Ruolo>): void
+        + getSkills(): ArrayList<Skill>
+        + setSkills(List<Skill>): void
+        + getTrofei(): ArrayList<Trofeo>
+        + setTrofei(List<Trofeo>): void
+        + getCarriera(): ArrayList<Militanza>
+        + setCarriera(List<Militanza>): void
     }
 
     class Squadra {
         - nome: String
-        - nazionalità: String
+        - nazionalita: String
         ---
-        + getNome(): String
-        + getNazionalità(): String
+        + nome(): String
+        + nazionalita(): String
     }
 
     class Militanza {
+        - squadra: Squadra
         - partiteGiocate: int
         - goalSegnati: int
+        - periodi: ArrayList<Periodo>
         ---
+        + getSquadra(): Squadra
         + getPartiteGiocate(): int
+        + setPartiteGiocate(int): void
         + getGoalSegnati(): int
-        + getPeriodi(): ArrayList<Periodo>
+        + setGoalSegnati(int): void
+        + getPeriodi(): List<Periodo>
+        + setPeriodi(List<Periodo>): void
     }
 
     class MilitanzaPortiere {
         - goalSubiti: int
         ---
-        + getGaolSubiti(): int
+        + getGoalSubiti(): int
+        + setGoalSubiti(int): void
     }
 
     class Periodo {
         - dataInizio: Date
         - dataFine: Date
         ---
-        + getDataInizio(): Date
-        + getDataFine(): Date
+        + dataInizio(): Date
+        + dataFine(): Date
     }
 
     abstract class Trofeo {
@@ -226,56 +387,58 @@ package Model {
         - data: Date
         ---
         + getNome(): String
-        + getData(): String
+        + getData(): Date
     }
 
     class TrofeoIndividuale {
+        - idCalciatore: int
         ---
-        + getCalciatore(): Calciatore
+        + getIdCalciatore(): int
     }
 
     class TrofeoDiSquadra {
+        - squadra: Squadra
         ---
         + getSquadra(): Squadra
     }
 
     interface Utente {
         ---
-        + <u>accediComeAmministratore(String)
-        + <u>vediElencoCalciatori()
-        + <u>vediCaratteristicheCalciatore(Calciatore)
-        + <u>filtraPer(Filtro)
+        + accediComeAmministratore(String): void
+        + vediElencoCalciatori(): void
+        + vediCaratteristicheCalciatore(int): void
+        + filtraPer(Filtro): void
     }
 
     interface Amministratore {
         ---
-        + <u>inserisciCalciatore(String, String, Date, Date?, List<Skill>, List<Ruolo>, Piede, List<Militanza>)
-        + <u>modificaCalciatore(Calciatore, String, String, Date, Date?, List<Skill>, List<Ruolo>, Piede, List<Militanza>)
-        + <u>eliminaCalciatore(Calciatore)
-        + <u>logout()
+        + inserisciCalciatore(String, String, Date, Date, List<Skill>, List<Ruolo>, Piede, List<Militanza>): void
+        + modificaCalciatore(Calciatore, String, String, Date, Date, List<Skill>, List<Ruolo>, Piede, List<Militanza>): void
+        + eliminaCalciatore(Calciatore): void
+        + logout(): void
     }
 
     class Filtro {
         - nome: String
-        - ruolo: Ruolo
+        - ruolo: String
         - piede: Piede
         - minimoGoalSegnati: Integer
         - massimoGoalSegnati: Integer
         - minimoGoalSubiti: Integer
         - massimoGoalSubiti: Integer
-        - minimoEtà: Integer
-        - massimoEtà: Integer
+        - minimoEta: Integer
+        - massimoEta: Integer
         - squadra: Squadra
         ---
         + getNome(): String
-        + getRuolo(): Ruolo
+        + getRuolo(): String
         + getPiede(): Piede
         + getMinimoGoalSegnati(): Integer
         + getMassimoGoalSegnati(): Integer
         + getMinimoGoalSubiti(): Integer
         + getMassimoGoalSubiti(): Integer
-        + getMinimoEtà(): Integer
-        + getMassimoEtà(): Integer
+        + getMinimoEta(): Integer
+        + getMassimoEta(): Integer
         + getSquadra(): Squadra
     }
 
@@ -295,8 +458,17 @@ package Model {
     MilitanzaPortiere -[hidden]- Utente
 }
 
-Control.utente ..|> Model.Utente
-Control.amministratore ..|> Model.Amministratore
+Control.Controller ..|> Model.Utente
+Control.Controller ..|> Model.Amministratore
+Control.Controller ..> UI.UserInterface: <<use>>
+Control.Controller ..> DAO.MilitanzaDAO: <<use>>
+Control.Controller ..> DAO.CalciatoreDAO: <<use>>
+Control.Controller ..> DAO.SkillsDAO: <<use>>
+Control.Controller ..> DAO.RuoliDAO: <<use>>
+Control.Controller ..> DAO.SquadraDAO: <<use>>
+Control.Controller ..> DAO.TrofeoDAO: <<use>>
+
+GUI.MainFrame ..|> UI.UserInterface
 
 note bottom of Model.Amministratore:\
 La lista dei parametri dei metodi ""inserisciCalciatore(...)""\n\
