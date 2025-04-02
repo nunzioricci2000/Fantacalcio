@@ -1,6 +1,5 @@
 package DAO;
 
-import Model.Calciatore;
 import Model.Militanza;
 import Model.Squadra;
 

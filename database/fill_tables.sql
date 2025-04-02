@@ -72,3 +72,5 @@ INSERT INTO Trofeo (NOME, DATA, ID_CALCIATORE, NOME_SQUADRA, NAZIONALITÀ_SQUADR
 -- Esempio di trofeo di squadra: 'Scudetto' assegnato alla squadra Inter
 INSERT INTO Trofeo (NOME, DATA, ID_CALCIATORE, NOME_SQUADRA, NAZIONALITÀ_SQUADRA) VALUES
     ('Scudetto', '2023-05-28', NULL, 'Inter', 'Italia');
+
+SELECT setval('calciatore_id_seq', (SELECT MAX(id) FROM Calciatore));

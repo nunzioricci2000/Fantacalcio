@@ -1,4 +1,4 @@
-@startuml
+@startuml DB Ristrutturato
 title Modello Base di Dati Ristrutturato
 
 enum T_RUOLO {

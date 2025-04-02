@@ -1,4 +1,4 @@
-@startuml
+@startuml Model
 
 enum Ruolo {
     PORTIERE
@@ -8,7 +8,7 @@ enum Ruolo {
 }
 
 enum Piede {
-    SINISTO
+    SINISTRO
     DESTRO
     AMBIDESTRO
 }
@@ -36,54 +36,70 @@ class Calciatore {
     - nome: String
     - cognome: String
     - dataDiNascita: Date
-    - dataDiRitiro: Date?
+    - dataDiRitiro: Date
     - piede: Piede
     - ruoli: ArrayList<Ruolo>
     - skills: ArrayList<Skill>
+    - trofei: ArrayList<Trofeo>
+    - carriera: ArrayList<Militanza>
     ---
+    + getId(): int
     + getNome(): String
+    + setNome(String): void
     + getCognome(): String
+    + setCognome(String): void
     + getDataDiNascita(): Date
-    + getDataDiRitiro(): Optional<Date>
-    + getCarriera(): ArrayList<Militanza>
-    + getTrofei(): ArrayList<Trofeo>
-    + getEtà(): int
-    + getSquadraCorrente(): Optional<Squadra>
-    + getSkills(): ArrayList<Skill>
+    + setDataDiNascita(Date): void
+    + getDataDiRitiro(): Date
+    + setDataDiRitiro(Date): void
     + getPiede(): Piede
+    + setPiede(Piede): void
     + getRuoli(): ArrayList<Ruolo>
-    + getPartiteGiocate():
+    + setRuoli(List<Ruolo>): void
+    + getSkills(): ArrayList<Skill>
+    + setSkills(List<Skill>): void
+    + getTrofei(): ArrayList<Trofeo>
+    + setTrofei(List<Trofeo>): void
+    + getCarriera(): ArrayList<Militanza>
+    + setCarriera(List<Militanza>): void
 }
 
 class Squadra {
     - nome: String
-    - nazionalità: String
+    - nazionalita: String
     ---
-    + getNome(): String
-    + getNazionalità(): String
+    + nome(): String
+    + nazionalita(): String
 }
 
 class Militanza {
+    - squadra: Squadra
     - partiteGiocate: int
     - goalSegnati: int
+    - periodi: ArrayList<Periodo>
     ---
+    + getSquadra(): Squadra
     + getPartiteGiocate(): int
+    + setPartiteGiocate(int): void
     + getGoalSegnati(): int
-    + getPeriodi(): ArrayList<Periodo>
+    + setGoalSegnati(int): void
+    + getPeriodi(): List<Periodo>
+    + setPeriodi(List<Periodo>): void
 }
 
 class MilitanzaPortiere {
     - goalSubiti: int
     ---
-    + getGaolSubiti(): int
+    + getGoalSubiti(): int
+    + setGoalSubiti(int): void
 }
 
 class Periodo {
     - dataInizio: Date
     - dataFine: Date
     ---
-    + getDataInizio(): Date
-    + getDataFine(): Date
+    + dataInizio(): Date
+    + dataFine(): Date
 }
 
 abstract class Trofeo {
@@ -91,57 +107,60 @@ abstract class Trofeo {
     - data: Date
     ---
     + getNome(): String
-    + getData(): String
+    + getData(): Date
 }
 
 class TrofeoIndividuale {
+    - idCalciatore: int
     ---
-    + getCalciatore(): Calciatore
+    + getIdCalciatore(): int
 }
 
 class TrofeoDiSquadra {
+    - squadra: Squadra
     ---
     + getSquadra(): Squadra
 }
 
 interface Utente {
     ---
-    + accediComeAmministratore(password: String): Utente
-    + vediElencoCalciatori(): List<Calciatore>
-    + vediCaratteristicheCalciatore(calciatore: Calciatore): Calciatore
-    + filtraPer(filtro: Filtro): List<Calciatore>
+    + accediComeAmministratore(String): void
+    + vediElencoCalciatori(): void
+    + vediCaratteristicheCalciatore(int): void
+    + filtraPer(Filtro): void
 }
 
 interface Amministratore {
     ---
-    + inserisciCalciatore(nome: String, cognome: String, dataDiNascita: Date, dataDiRitiro: Date?, skills: List<Skill>, ruoli: List<Ruolo>, piede: Piede, carriera: List<Militanza>): Calciatore
-    + modificaCalciatore(calciatore: Calciatore, nome: String?, cognome: String?, dataDiNascita: Date?, dataDiRitiro: Date?, skills: List<Skill>?, ruoli: List<Ruolo>?, piede: Piede?, carriera: List<Militanza>?): Calciatore
-    + eliminaCalciatore(calciatore: Calciatore): bool
-    + logout(): Utente
+    + inserisciCalciatore(String, String, Date, Date, List<Skill>, List<Ruolo>, Piede, List<Militanza>): void
+    + modificaCalciatore(Calciatore, String, String, Date, Date, List<Skill>, List<Ruolo>, Piede, List<Militanza>): void
+    + eliminaCalciatore(Calciatore): void
+    + logout(): void
 }
 
 class Filtro {
     - nome: String
-    - ruolo: Ruolo
+    - ruolo: String
     - piede: Piede
     - minimoGoalSegnati: Integer
     - massimoGoalSegnati: Integer
     - minimoGoalSubiti: Integer
     - massimoGoalSubiti: Integer
-    - minimoEtà: Integer
-    - massimoEtà: Integer
+    - minimoEta: Integer
+    - massimoEta: Integer
     - squadra: Squadra
     ---
     + getNome(): String
-    + getRuolo(): Ruolo
+    + getRuolo(): String
     + getPiede(): Piede
     + getMinimoGoalSegnati(): Integer
     + getMassimoGoalSegnati(): Integer
     + getMinimoGoalSubiti(): Integer
     + getMassimoGoalSubiti(): Integer
-    + getMinimoEtà(): Integer
-    + getMassimoEtà(): Integer
+    + getMinimoEta(): Integer
+    + getMassimoEta(): Integer
     + getSquadra(): Squadra
+    + Builder
 }
 
 ' Generalizzazioni

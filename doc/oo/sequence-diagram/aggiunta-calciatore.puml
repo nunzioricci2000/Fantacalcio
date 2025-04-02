@@ -1,0 +1,84 @@
+@startuml AggiuntaCalciatore
+title Sequence Diagram: Aggiunta di un Calciatore
+
+actor Utente as user
+participant "MainFrame" as ui
+participant "LoginView" as loginView
+participant "CalciatoriAggiungiView" as aggiungiView
+participant "Controller" as controller
+participant "CalciatorePostgresImplDAO" as calciatoreDAO
+participant "SkillsPostgresImplDAO" as skillsDAO
+participant "RuoliPostgresImplDAO" as ruoliDAO
+participant "DatabaseConnection" as db
+
+
+user -> loginView: Inserisce password admin e click su "Accedi"
+activate loginView
+loginView -> controller: accediComeAmministratore(password)
+activate controller
+controller -> controller: verifica password
+controller -> ui: notifyAdminMode(true)
+activate ui
+deactivate controller
+ui -> user: Mostra interfaccia admin
+
+user -> ui: Seleziona "Aggiungi Calciatore"
+ui -> controller: showAggiungiCalciatoreView()
+activate controller
+controller -> ui: showAggiungiCalciatoreView()
+deactivate controller
+ui -> aggiungiView: display()
+activate aggiungiView
+deactivate ui
+
+user -> aggiungiView: Inserisce dati calciatore\n(nome, cognome, data nascita, piede, ecc.)
+user -> aggiungiView: Seleziona ruoli
+user -> aggiungiView: Seleziona skills
+user -> aggiungiView: Click su "Salva"
+
+
+aggiungiView -> controller: inserisciCalciatore(nome, cognome, dataNascita, \ndataRitiro, skills, ruoli, piede, militanze)
+deactivate aggiungiView
+activate controller
+deactivate loginView
+
+controller -> db: getInstance()
+activate db
+db --> controller: connection
+deactivate db
+
+controller -> calciatoreDAO: create(nuovoCalciatore)
+activate calciatoreDAO
+calciatoreDAO -> db: esegue query INSERT
+activate db
+db --> calciatoreDAO: id calciatore
+deactivate db
+
+loop per ogni ruolo
+    controller -> ruoliDAO: addRuoloCalciatore(idCalciatore, ruolo)
+    activate ruoliDAO
+    ruoliDAO -> db: esegue query INSERT
+    activate db
+    deactivate db
+    deactivate ruoliDAO
+end
+
+loop per ogni skill
+    controller -> skillsDAO: addSkillCalciatore(idCalciatore, skill)
+    activate skillsDAO
+    skillsDAO -> db: esegue query INSERT
+    activate db
+    deactivate db
+    deactivate skillsDAO
+end
+
+calciatoreDAO --> controller: calciatore con id assegnato
+deactivate calciatoreDAO
+
+controller -> ui: showMessage("Calciatore aggiunto con successo")
+activate ui
+deactivate controller
+ui -> user: Mostra messaggio di conferma
+deactivate ui
+
+@enduml

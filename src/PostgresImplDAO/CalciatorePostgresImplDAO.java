@@ -42,20 +42,20 @@ public class CalciatorePostgresImplDAO implements CalciatoreDAO {
         List<String> conditions = new ArrayList<>();
         if (filtro != null) {
             if (filtro.getNome() != null && !filtro.getNome().isEmpty()) {
-                conditions.add("(C.\"NOME\" ILIKE '%" + filtro.getNome() + "%' OR C.\"COGNOME\" ILIKE '%" + filtro.getNome() + "%')");
+                conditions.add("(C.NOME ILIKE '%" + filtro.getNome() + "%' OR C.COGNOME ILIKE '%" + filtro.getNome() + "%')");
             }
             if (filtro.getRuolo() != null && !filtro.getRuolo().isEmpty()) {
-                queryBuilder.append("JOIN \"Ruoli\" R ON C.\"ID\" = R.\"ID_CALCIATORE\" ");
-                conditions.add("R.\"RUOLO\" = '" + filtro.getRuolo() + "'");
+                queryBuilder.append("JOIN Ruoli R ON C.ID = R.ID_CALCIATORE ");
+                conditions.add("R.RUOLO = '" + filtro.getRuolo() + "'");
             }
             if (filtro.getPiede() != null) {
-                conditions.add("C.\"PIEDE\" = '" + filtro.getPiede().name() + "'");
+                conditions.add("C.PIEDE = '" + filtro.getPiede().name() + "'");
             }
             if (filtro.getMinimoGoalSegnati() != null) {
-                conditions.add("SC.\"TOTALE_GOAL_SEGNATI\" >= " + filtro.getMinimoGoalSegnati());
+                conditions.add("SC.TOTALE_GOAL_SEGNATI >= " + filtro.getMinimoGoalSegnati());
             }
             if (filtro.getMassimoGoalSegnati() != null) {
-                conditions.add("SC.\"TOTALE_GOAL_SEGNATI\" <= " + filtro.getMassimoGoalSegnati());
+                conditions.add("SC.TOTALE_GOAL_SEGNATI <= " + filtro.getMassimoGoalSegnati());
             }
             if (filtro.getMinimoGoalSubiti() != null) {
                 conditions.add("SC.TOTALE_GOAL_SUBITI >= " + filtro.getMinimoGoalSubiti());
@@ -70,8 +70,8 @@ public class CalciatorePostgresImplDAO implements CalciatoreDAO {
                 conditions.add("SC.eta <= " + filtro.getMassimoEta());
             }
             if (filtro.getSquadra() != null) {
-                conditions.add("(SC.\"ULTIMA_SQUADRA_NOME\" = '" + filtro.getSquadra().nome() + "' AND " +
-                        "SC.\"ULTIMA_SQUADRA_NAZIONALITA\" = '" + filtro.getSquadra().nazionalita() + "')");
+                conditions.add("(SC.ULTIMA_SQUADRA_NOME = '" + filtro.getSquadra().nome() + "' AND " +
+                        "SC.ULTIMA_SQUADRA_NAZIONALITA = '" + filtro.getSquadra().nazionalita() + "')");
             }
         }
         if (!conditions.isEmpty()) {
@@ -83,7 +83,7 @@ public class CalciatorePostgresImplDAO implements CalciatoreDAO {
 
     @Override
     public Calciatore read(int id) throws SQLException {
-        String query = "SELECT * FROM \"calciatore\" WHERE \"id\" = ?";
+        String query = "SELECT * FROM calciatore WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -122,8 +122,8 @@ public class CalciatorePostgresImplDAO implements CalciatoreDAO {
      */
     @Override
     public Calciatore update(Calciatore calciatore) throws SQLException {
-        String query = "UPDATE \"calciatore\" SET \"nome\" = ?, \"cognome\" = ?, \"data_di_nascita\" = ?, " +
-                "\"data_di_ritiro\" = ?, \"piede\" = ? WHERE \"id\" = ?";
+        String query = "UPDATE calciatore SET nome = ?, cognome = ?, data_di_nascita = ?, " +
+                "data_di_ritiro = ?, piede = ?::T_PIEDE WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, calciatore.getNome());
             stmt.setString(2, calciatore.getCognome());
@@ -142,7 +142,7 @@ public class CalciatorePostgresImplDAO implements CalciatoreDAO {
 
     @Override
     public void delete(Calciatore calciatore) throws SQLException {
-        String query = "DELETE FROM \"calciatore\" WHERE \"id\" = ?";
+        String query = "DELETE FROM calciatore WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, calciatore.getId());
             stmt.executeUpdate();
@@ -151,39 +151,53 @@ public class CalciatorePostgresImplDAO implements CalciatoreDAO {
 
     @Override
     public Calciatore create(Calciatore calciatore) throws SQLException {
-        String query = "INSERT INTO \"calciatore\" (\"nome\", \"cognome\", \"data_di_nascita\", \"data_di_ritiro\", \"piede\") " +
-                "VALUES (?, ?, ?, ?, ?) RETURNING \"id\"";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+        String query = "INSERT INTO calciatore (nome, cognome, data_di_nascita, data_di_ritiro, piede) " +
+                "VALUES (?, ?, ?, ?, ?::T_PIEDE)";
+        
+        // Aggiungi Statement.RETURN_GENERATED_KEYS per ottenere l'ID generato
+        try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, calciatore.getNome());
             stmt.setString(2, calciatore.getCognome());
             stmt.setDate(3, new java.sql.Date(calciatore.getDataDiNascita().getTime()));
+            
             if (calciatore.getDataDiRitiro() != null) {
                 stmt.setDate(4, new java.sql.Date(calciatore.getDataDiRitiro().getTime()));
             } else {
                 stmt.setNull(4, Types.DATE);
             }
+            
             stmt.setString(5, calciatore.getPiede().name());
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                int id = rs.getInt(1);
-                for (Ruolo ruolo : calciatore.getRuoli()) {
-                    ruoliDAO.create(ruolo, id);
+            
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Errore nella creazione del calciatore, nessuna riga inserita");
+            }
+            
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    int id = rs.getInt(1);
+                    System.out.println("ID generato: " + id);
+                    for (Ruolo ruolo : calciatore.getRuoli()) {
+                        ruoliDAO.create(ruolo, id);
+                    }
+                    for (Skill skill : calciatore.getSkills()) {
+                        skillsDAO.create(skill, id);
+                    }
+                    return new Calciatore(
+                        id, 
+                        calciatore.getNome(), 
+                        calciatore.getCognome(),
+                        calciatore.getDataDiNascita(), 
+                        calciatore.getDataDiRitiro(),
+                        calciatore.getPiede(), 
+                        calciatore.getRuoli(), 
+                        calciatore.getSkills(),
+                        calciatore.getTrofei(), 
+                        calciatore.getCarriera()
+                    );
+                } else {
+                    throw new SQLException("Errore nella creazione del calciatore, nessun ID restituito");
                 }
-                for (Skill skill : calciatore.getSkills()) {
-                    skillsDAO.create(skill, id);
-                }
-                for (Trofeo trofeo : calciatore.getTrofei()) {
-                    trofeoDAO.create(trofeo);
-                }
-                for (Militanza militanza : calciatore.getCarriera()) {
-                    militanzaDAO.create(id, militanza);
-                }
-                return new Calciatore(id, calciatore.getNome(), calciatore.getCognome(),
-                        calciatore.getDataDiNascita(), calciatore.getDataDiRitiro(),
-                        calciatore.getPiede(), calciatore.getRuoli(), calciatore.getSkills(),
-                        calciatore.getTrofei(), calciatore.getCarriera());
-            } else {
-                throw new SQLException("Errore nella creazione del calciatore, nessun ID restituito");
             }
         }
     }

@@ -1,6 +1,5 @@
 package DAO;
 
-import Model.Militanza;
 import Model.Periodo;
 import Model.Squadra;
 

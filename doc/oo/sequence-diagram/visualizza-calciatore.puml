@@ -1,0 +1,42 @@
+@startuml visualizza-calciatori
+title Sequence Diagram: Visualizzazione Lista Calciatori
+
+actor Utente as user
+participant "MainFrame" as ui
+participant "CalciatoriView" as view
+participant "CalciatoriTable" as table
+participant "Controller" as ctrl
+participant "CalciatoreDAO" as dao
+database "Database" as db
+
+user -> ui : Richiede visualizzazione calciatori
+activate ui
+
+ui -> ctrl : showCalciatoriView()
+activate ctrl
+
+ctrl -> dao : readCalciatori(filtro)
+activate dao
+dao -> db : esegue query SQL
+activate db
+db --> dao : risultati query
+deactivate db
+dao --> ctrl : List<Calciatore>
+deactivate dao
+
+ctrl -> ui : displayCalciatori(List<Calciatore>)
+deactivate ctrl
+
+ui -> view : displayCalciatori(List<Calciatore>)
+activate view
+view -> table : displayCalciatori(List<Calciatore>)
+activate table
+table --> view : aggiornamento completato
+deactivate table
+view --> ui : visualizzazione aggiornata
+deactivate view
+
+ui --> user : Mostra lista calciatori
+deactivate ui
+
+@enduml

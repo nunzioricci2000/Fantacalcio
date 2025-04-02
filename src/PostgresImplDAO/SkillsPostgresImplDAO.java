@@ -5,6 +5,7 @@ import Database.DatabaseConnection;
 import Model.Skill;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -49,5 +50,20 @@ public class SkillsPostgresImplDAO implements SkillsDAO {
                 "INSERT INTO skills(id_calciatore, skill) VALUES ("
                         + idCalciatore + ", '" + skill.name() + "')");
         statement.close();
+    }
+
+    @Override
+    public void addSkillCalciatore(int idCalciatore, Skill skill) throws SQLException {
+        create(skill, idCalciatore);
+    }
+
+    @Override
+    public void deleteSkillsCalciatore(int idCalciatore) throws SQLException {
+        String sql = "DELETE FROM skills WHERE id_calciatore = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idCalciatore);
+            stmt.executeUpdate();
+        }
     }
 }
